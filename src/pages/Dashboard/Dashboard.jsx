@@ -9,45 +9,9 @@ import Sidebar from '../../components/Sidebar';
 import './Dashboard.css';
 
 // ========================================
-// ข้อมูลตัวอย่าง - Mock Data
+// ดึงข้อมูลตัวอย่าง - Import Mock Data
 // ========================================
-const sampleJobs = [
-  { 
-    id: 'J001', 
-    name: 'ซ่อมแอร์ห้อง 301', 
-    date: '2024-11-15', 
-    technician: 'สมชาย ใจดี', 
-    status: 'รอดำเนินการ' 
-  },
-  { 
-    id: 'J002', 
-    name: 'เปลี่ยนหลอดไฟ', 
-    date: '2024-11-14', 
-    technician: 'สมหญิง รักงาน', 
-    status: 'กำลังทำ' 
-  },
-  { 
-    id: 'J003', 
-    name: 'ตรวจเช็คระบบไฟฟ้า', 
-    date: '2024-11-13', 
-    technician: 'สมศักดิ์ ขยัน', 
-    status: 'เสร็จแล้ว' 
-  },
-  { 
-    id: 'J004', 
-    name: 'ซ่อมท่อประปา', 
-    date: '2024-11-16', 
-    technician: 'สมชาย ใจดี', 
-    status: 'รอตรวจสอบ' 
-  },
-  { 
-    id: 'J005', 
-    name: 'ทาสีผนัง', 
-    date: '2024-11-15', 
-    technician: 'สมหญิง รักงาน', 
-    status: 'กำลังทำ' 
-  },
-];
+import sampleJobs from '../../data/Techsample.jsx';
 
 // ========================================
 // Dashboard Component - Component หลัก
