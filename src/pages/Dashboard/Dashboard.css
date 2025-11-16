@@ -1,0 +1,596 @@
+/* ========================================
+   Dashboard.css - ไฟล์ CSS สำหรับระบบจ่ายงานช่าง
+   ======================================== */
+
+/* ========================================
+   Reset & Base Styles - รีเซ็ตและสไตล์พื้นฐาน
+   ======================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f3f4f6;
+}
+
+/* ========================================
+   Layout - โครงสร้างหลัก
+   ======================================== */
+.app-container {
+  min-height: 100vh;
+  background-color: #f3f4f6;
+}
+
+.main-layout {
+  display: flex;
+}
+
+/* ========================================
+   Navbar - แถบเมนูด้านบน
+   ======================================== */
+.navbar {
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ส่วนซ้ายของ Navbar */
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ส่วนขวาของ Navbar */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ปุ่มเปิด/ปิด Sidebar */
+.menu-toggle-btn {
+  padding: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.menu-toggle-btn:hover {
+  background-color: #f3f4f6;
+}
+
+/* โลโก้ระบบ */
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+  color: #2563eb;
+}
+
+/* ปุ่มแจ้งเตือน */
+.notification-btn {
+  padding: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s;
+}
+
+.notification-btn:hover {
+  background-color: #f3f4f6;
+}
+
+/* จุดแดงแจ้งเตือน */
+.notification-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  background-color: #ef4444;
+  border-radius: 50%;
+}
+
+/* Container เมนูโปรไฟล์ */
+.profile-menu-container {
+  position: relative;
+}
+
+/* ปุ่มโปรไฟล์ */
+.profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.profile-btn:hover {
+  background-color: #f3f4f6;
+}
+
+/* รูปโปรไฟล์ */
+.profile-avatar {
+  width: 32px;
+  height: 32px;
+  background-color: #2563eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+/* ชื่อผู้ใช้ */
+.profile-name {
+  font-weight: 500;
+}
+
+/* Dropdown Menu */
+.profile-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 8px;
+  width: 192px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 8px 0;
+  z-index: 10;
+}
+
+/* รายการใน Dropdown */
+.dropdown-item {
+  width: 100%;
+  padding: 12px 16px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: #f3f4f6;
+}
+
+/* ========================================
+   Sidebar - เมนูด้านซ้าย
+   ======================================== */
+.sidebar {
+  width: 256px;
+  background-color: white;
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+  min-height: calc(100vh - 64px);
+  padding: 16px;
+}
+
+/* Navigation Menu */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ปุ่มเมนู */
+.nav-btn {
+  width: 100%;
+  text-align: left;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.nav-btn:hover {
+  background-color: #f3f4f6;
+}
+
+/* ปุ่มเมนูที่ถูกเลือก */
+.nav-btn.active {
+  background-color: #2563eb;
+  color: white;
+}
+
+/* ส่วนสลับบทบาท (สำหรับทดสอบ) */
+.role-switcher {
+  margin-top: 32px;
+  padding: 16px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+}
+
+.role-label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.role-select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ========================================
+   Content Area - พื้นที่เนื้อหาหลัก
+   ======================================== */
+.content-area {
+  flex: 1;
+  padding: 24px;
+}
+
+/* ========================================
+   Status Cards - การ์ดสรุปสถานะงาน
+   ======================================== */
+.status-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* การ์ดแต่ละใบ */
+.card {
+  background-color: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+/* การ์ดแบบเน้น (สำหรับ "รอตรวจสอบ") */
+.card.highlight {
+  border: 2px solid #fbbf24;
+}
+
+/* ชื่อการ์ด */
+.card-label {
+  color: #6b7280;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+/* ตัวเลขในการ์ด */
+.card-number {
+  font-size: 32px;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+/* สีตัวเลขตามสถานะ */
+.card-number.orange {
+  color: #f97316;
+}
+
+.card-number.blue {
+  color: #3b82f6;
+}
+
+.card-number.green {
+  color: #10b981;
+}
+
+.card-number.yellow {
+  color: #eab308;
+}
+
+/* ========================================
+   Search & Filter - ค้นหาและฟิลเตอร์
+   ======================================== */
+.search-filter-box {
+  background-color: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* Container ช่องค้นหา */
+.search-container {
+  flex: 1;
+  position: relative;
+  min-width: 250px;
+}
+
+/* ไอคอนค้นหา */
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  color: #9ca3af;
+}
+
+/* Input ค้นหา */
+.search-input {
+  width: 100%;
+  padding: 8px 12px 8px 40px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* Container ฟิลเตอร์ */
+.filter-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Select ฟิลเตอร์ */
+.filter-select {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* ========================================
+   Job Table - ตารางแสดงรายการงาน
+   ======================================== */
+.table-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.job-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Header ของตาราง */
+.job-table thead {
+  background-color: #f9fafb;
+}
+
+.job-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+/* แถวของตาราง */
+.job-table tbody tr {
+  border-top: 1px solid #e5e7eb;
+  transition: background-color 0.2s;
+}
+
+.job-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+/* เซลล์ของตาราง */
+.job-table td {
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+/* ชื่องาน */
+.job-name {
+  font-weight: 500;
+}
+
+/* Badge สถานะ */
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* สีของ Badge ตามสถานะ */
+.status-badge.status-pending {
+  background-color: #fed7aa;
+  color: #9a3412;
+}
+
+.status-badge.status-in-progress {
+  background-color: #bfdbfe;
+  color: #1e3a8a;
+}
+
+.status-badge.status-completed {
+  background-color: #bbf7d0;
+  color: #14532d;
+}
+
+.status-badge.status-review {
+  background-color: #fef08a;
+  color: #713f12;
+}
+
+/* ปุ่มดูรายละเอียด */
+.detail-btn {
+  color: #2563eb;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.detail-btn:hover {
+  color: #1d4ed8;
+}
+
+/* ========================================
+   Urgent Box - กล่องงานเร่งด่วน
+   ======================================== */
+.urgent-box {
+  background-color: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* หัวข้อ */
+.urgent-title {
+  font-weight: 500;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+}
+
+/* รายการงานเร่งด่วน */
+.urgent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* รายการงานแต่ละอัน */
+.urgent-item {
+  padding: 12px;
+  border-radius: 4px;
+  transition: transform 0.2s;
+}
+
+.urgent-item:hover {
+  transform: translateX(4px);
+}
+
+/* งานเร่งด่วนสูง (วันนี้) */
+.urgent-item.red {
+  background-color: #fee2e2;
+  border-left: 4px solid #ef4444;
+}
+
+/* งานเร่งด่วนปานกลาง (พรุ่งนี้) */
+.urgent-item.yellow {
+  background-color: #fef3c7;
+  border-left: 4px solid #f59e0b;
+}
+
+/* ชื่องาน */
+.urgent-job-name {
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+/* วันที่ครบกำหนด */
+.urgent-date {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* ========================================
+   Page Content - เนื้อหาหน้าต่างๆ
+   ======================================== */
+.page-content {
+  background-color: white;
+  padding: 32px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.page-content h2 {
+  margin-bottom: 16px;
+  color: #1f2937;
+}
+
+.page-content p {
+  color: #6b7280;
+}
+
+/* ========================================
+   Responsive Design - รองรับหน้าจอขนาดต่างๆ
+   ======================================== */
+
+/* หน้าจอขนาดกลาง (Tablet) */
+@media (max-width: 1024px) {
+  .status-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* หน้าจอขนาดเล็ก (Mobile) */
+@media (max-width: 768px) {
+  /* Sidebar แบบ Fixed */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 64px;
+    height: calc(100vh - 64px);
+    z-index: 20;
+  }
+
+  /* การ์ดแสดง 1 คอลัมน์ */
+  .status-cards {
+    grid-template-columns: 1fr;
+  }
+
+  /* Search & Filter แบบแนวตั้ง */
+  .search-filter-box {
+    flex-direction: column;
+  }
+
+  /* ตารางเลื่อนได้ */
+  .table-container {
+    overflow-x: auto;
+  }
+
+  /* ซ่อนชื่อผู้ใช้ใน Navbar */
+  .profile-name {
+    display: none;
+  }
+}
