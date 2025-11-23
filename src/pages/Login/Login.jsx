@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // ADDED
 import './Login.css';
 
 export default function Login() {
+    const navigate = useNavigate(); // ADDED
+
     const [currentPage, setCurrentPage] = useState('login');
     const [formData, setFormData] = useState({
         username: '',
@@ -16,8 +19,8 @@ export default function Login() {
     const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    // ==============================
-    // Mock Users
+// ==============================
+    // Mock Users - UPDATED: technician1 role set to Technician
     // ==============================
     const mockUsers = {
         technician1: { password: '1234', role: 'Technician' },
@@ -52,12 +55,24 @@ export default function Login() {
             if (formData.username && formData.password) {
                 const role = getMockUserRole(formData.username, formData.password);
                 if (role) {
+                    
                     setUserRole(role);
                     setMessage(`✓ เข้าสู่ระบบสำเร็จ | บทบาท: ${role}`);
-                    setTimeout(() => {
-                        setFormData({ username: '', password: '', email: '', newPassword: '', confirmPassword: '' });
-                        setUserRole('');
-                    }, 2000);
+                    
+                    // Conditional Redirection Logic
+                    if (role === 'Administrator' || role === 'Supervisor') {
+                         // Convert role string for Dashboard state ('admin' or 'supervisor')
+                         const formattedRole = role === 'Administrator' ? 'admin' : 'supervisor'; 
+                         setTimeout(() => {
+                            navigate('/dashboard', { state: { userRole: formattedRole } });
+                         }, 1000); 
+                    } else {
+                         // Technician login successful but stay on login page
+                         setTimeout(() => {
+                             setMessage('');
+                         }, 3000);
+                    }
+
                 } else {
                     setMessage('✗ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
                 }
@@ -216,9 +231,9 @@ export default function Login() {
                         {/* Demo Credentials */}
                         <div className="login-demo-box">
                             <div className="login-demo-title">🔑 ทดสอบด้วย:</div>
-                            <p>technician1 / 1234</p>
-                            <p>super1 / 1234</p>
-                            <p>admin1 / 1234</p>
+                            <p>technician1 / 1234 (Technician)</p>
+                            <p>super1 / 1234 (Supervisor)</p>
+                            <p>admin1 / 1234 (Administrator)</p>
                         </div>
                     </form>
                 )}

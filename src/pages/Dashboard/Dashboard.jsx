@@ -3,7 +3,8 @@
 // ========================================
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, Filter, Calendar, Clock, Briefcase } from 'lucide-react';
+import { Search, Filter, Calendar, Clock, Briefcase, PlusSquare } from 'lucide-react';
+import { useLocation } from 'react-router-dom'; // ADDED
 import Navbar from '../../components/navbar';
 import Sidebar from '../../components/Sidebar';
 import './Dashboard.css';
@@ -13,11 +14,12 @@ import mockData from '../../data/Techsample.jsx';
 const { sampleJobs, ACTIVITIES } = mockData;
 
 // ค่าคงที่
-const ALL_STATUSES_FOR_CARDS = ['รออนุมัติ', 'รอดำเนินการ', 'กำลังทำ', 'รอตรวจสอบ']; // UPDATED
+const ALL_STATUSES_FOR_CARDS = ['รออนุมัติ', 'รอดำเนินการ', 'กำลังทำ', 'รอตรวจสอบ']; 
 const SUPERVISOR_DEPT = 'ไฟฟ้า'; 
 
 // Helper: คำนวณช่วงวันที่สำหรับ Filter (วัน/สัปดาห์/เดือน)
 const getFilterDateRange = (filterType) => {
+// ... (omitted for brevity)
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -37,7 +39,11 @@ const getFilterDateRange = (filterType) => {
 // ========================================
 function Dashboard() {
   // State Management
-  const [userRole, setUserRole] = useState('admin');
+  const location = useLocation(); // ADDED
+  // Initial userRole is taken from the route state, defaulting to 'admin' 
+  const initialRole = location.state?.userRole || 'admin';
+  
+  const [userRole, setUserRole] = useState(initialRole); // UPDATED to use initialRole
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [searchText, setSearchText] = useState('');
   
@@ -86,6 +92,7 @@ function Dashboard() {
   });
 
   // Pagination Logic
+// ... (omitted for brevity)
   const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
 
   const paginatedJobs = useMemo(() => {
@@ -96,6 +103,7 @@ function Dashboard() {
 
   // Effect: Reset หน้าเมื่อ Filter หรือ Page Size เปลี่ยน
   useEffect(() => {
+// ... (omitted for brevity)
     if (currentPageIndex > totalPages && totalPages > 0) setCurrentPageIndex(totalPages);
     else if (currentPageIndex < 1 && totalPages > 0) setCurrentPageIndex(1);
     else if (totalPages === 0 && currentPageIndex !== 1) setCurrentPageIndex(1);
@@ -110,10 +118,10 @@ function Dashboard() {
 
   const handlePageChange = (page) => setCurrentPage(page);
 
-  // Helper: Class สำหรับ Badge สถานะ (UPDATED: 'รอมอบหมาย' -> 'รออนุมัติ')
+  // Helper: Class สำหรับ Badge สถานะ
   const getStatusClass = (status) => {
     switch(status) {
-      case 'รออนุมัติ': return 'status-badge status-unassigned'; // UPDATED
+      case 'รออนุมัติ': return 'status-badge status-unassigned';
       case 'รอดำเนินการ': return 'status-badge status-pending';
       case 'กำลังทำ': return 'status-badge status-in-progress';
       case 'รอตรวจสอบ': return 'status-badge status-review';
@@ -122,10 +130,10 @@ function Dashboard() {
     }
   };
   
-  // Helper: Class สำหรับ Status Dot (หน้าชื่องาน) (UPDATED: 'รอมอบหมาย' -> 'รออนุมัติ')
+  // Helper: Class สำหรับ Status Dot (หน้าชื่องาน)
   const getStatusDotClass = (status) => {
     switch(status) {
-      case 'รออนุมัติ': return 'job-name-status-dot status-dot-unassigned'; // UPDATED
+      case 'รออนุมัติ': return 'job-name-status-dot status-dot-unassigned';
       case 'รอดำเนินการ': return 'job-name-status-dot status-dot-pending';
       case 'กำลังทำ': return 'job-name-status-dot status-dot-in-progress';
       case 'รอตรวจสอบ': return 'job-name-status-dot status-dot-review';
@@ -164,7 +172,6 @@ function Dashboard() {
               <div className="status-cards">
                 <div className="card"><div className="card-label">งานทั้งหมด (ต้องจัดการ)</div><div className="card-number">{totalWIPJobs}</div></div>
                 <div className="card">
-                  {/* UPDATED: 'รอมอบหมาย' -> 'รออนุมัติ' */}
                   <div className="card-label">รออนุมัติ</div>
                   <div className="card-number blue">{countByStatus('รออนุมัติ')}</div>
                 </div>
@@ -194,7 +201,6 @@ function Dashboard() {
                   <Filter size={20} />
                   <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="filter-select">
                     <option value="ทั้งหมด">ทั้งหมด (สถานะ)</option>
-                    {/* UPDATED: 'รอมอบหมาย' -> 'รออนุมัติ' */}
                     <option value="รออนุมัติ">รออนุมัติ</option>
                     <option value="รอดำเนินการ">รอดำเนินการ</option>
                     <option value="กำลังทำ">กำลังทำ</option>
@@ -225,7 +231,20 @@ function Dashboard() {
               {/* 2. Job Table (with Pagination) */}
               <div className="table-container">
                 <div className="table-header-controls">
-                    <h3 className="urgent-title" style={{ marginBottom: 0 }}>📋 รายการงานที่แสดง ({filteredJobs.length} งาน)</h3>
+                    {/* ปุ่มสร้างใบงานใหม่ (Admin Only) */}
+                    <div className="table-header-left">
+                        {userRole === 'admin' && (
+                            <button 
+                                className="approve-assign-btn" // Reusing style for primary action
+                                onClick={() => alert('เปิดหน้าสร้างใบงานใหม่ (Job Page)')} 
+                            >
+                                <PlusSquare size={16} style={{ marginRight: '8px' }} />
+                                สร้างใบงานใหม่
+                            </button>
+                        )}
+                        <h3 className="urgent-title" style={{ marginBottom: 0 }}>📋 รายการงานที่แสดง ({filteredJobs.length} งาน)</h3>
+                    </div>
+                    
                     <div className="filter-container" style={{ gap: '4px' }}>
                         <label className="role-label" style={{ marginBottom: 0, marginRight: '8px' }}>งานต่อหน้า:</label>
                         <select value={jobsPerPage} onChange={(e) => { setJobsPerPage(Number(e.target.value)); setCurrentPageIndex(1); }}
@@ -257,7 +276,7 @@ function Dashboard() {
                                   {userRole === 'supervisor' && job.status === 'รออนุมัติ' && (
                                     <button 
                                       className="approve-assign-btn" 
-                                      onClick={() => alert(`อนุมัติและมอบหมายงาน ${job.id}`)} // Mock Action
+                                      onClick={() => alert(`จำลอง: อนุมัติและมอบหมายงาน ${job.id} ให้ช่าง`)} // Mock Action
                                     >
                                       อนุมัติ/มอบหมาย
                                     </button>
