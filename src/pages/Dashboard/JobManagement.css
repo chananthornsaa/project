@@ -1,0 +1,676 @@
+/* JobManagement.css */
+
+.job-management-container {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #f3f4f6;
+}
+
+.job-management-container h2 {
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+
+.job-management-container hr {
+    border: 0;
+    height: 1px;
+    background: #e5e7eb;
+    margin-bottom: 24px;
+}
+
+/* --- Status Cards (Header Filter) --- */
+.status-cards-row {
+    display: grid;
+    /* ปรับให้รองรับ 4 คอลัมน์อย่างยืดหยุ่น */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.status-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.status-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.status-card.active {
+    background-color: #f97400; /* เปลี่ยนเป็นสีน้ำเงินที่ดูเป็นมืออาชีพขึ้น */
+    color: white;
+    border-color: #ff7700;
+}
+
+/* ปรับสีไอคอนตามสถานะการ์ด */
+.status-card .lucide {
+    color: #6b7280;
+}
+
+.status-card.active .lucide {
+    color: white;
+}
+
+.card-label {
+    font-size: 14px;
+    color: inherit;
+    margin-bottom: 4px;
+}
+
+.card-number {
+    font-size: 28px;
+    font-weight: bold;
+    color: inherit;
+}
+
+/* --- Search & Filter --- */
+.search-filter-box {
+    background-color: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* ปุ่มสร้างใบงานใหม่ */
+.create-job-btn {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #10b981; /* สีเขียว */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    white-space: nowrap; 
+}
+
+.create-job-btn:hover {
+    background-color: #059669; 
+}
+
+.create-job-btn span {
+    margin-left: 8px;
+}
+
+.search-container {
+    flex: 1;
+    min-width: 200px; /* ปรับขนาดขั้นต่ำ */
+    max-width: 350px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 14px;
+}
+
+.search-icon {
+    color: #9ca3af;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.filter-group .lucide {
+    color: #6b7280;
+}
+
+.filter-label {
+    font-size: 14px;
+    color: #6b7280;
+    white-space: nowrap;
+}
+
+.filter-select {
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+}
+
+/* --- Job List และ Job Card เหมือนเดิม --- */
+.job-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.job-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    position: relative;
+}
+
+.job-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.job-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+.job-id {
+    font-size: 16px;
+    font-weight: bold;
+    color: #1f2937;
+    flex-shrink: 0;
+}
+
+.job-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.job-detail {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+/* --- Status Badges --- */
+.job-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.job-badge-urgent {
+    background-color: #3b82f6; /* สีฟ้า/น้ำเงินสำหรับรอดำเนินการ */
+}
+
+.job-badge-progress {
+    background-color: #fbbf24; /* สีเหลืองสำหรับกำลังดำเนินการ */
+}
+
+.job-badge-completed {
+    background-color: #10b981; /* สีเขียวสำหรับเสร็จสิ้น */
+}
+
+.job-badge-review {
+    background-color: #f97316; /* สีส้มสำหรับรอตรวจสอบ */
+}
+
+/* --- Action Buttons --- */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    align-self: flex-end;
+}
+
+.assign-btn,
+.edit-btn,
+.delete-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.assign-btn {
+    background-color: #3b82f6; 
+}
+
+.assign-btn:hover {
+    background-color: #2563eb;
+}
+
+.edit-btn {
+    background-color: #9ca3af; /* เปลี่ยนเป็นสีเทา: รายละเอียด */
+}
+
+.edit-btn:hover {
+    background-color: #6b7280;
+}
+
+.delete-btn {
+    background-color: #ef4444; 
+}
+
+.delete-btn:hover {
+    background-color: #dc2626;
+}
+
+/* No Jobs Message */
+.no-jobs-message {
+    padding: 40px;
+    text-align: center;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Modal (ส่วนที่ปรับปรุงให้สวยงาม) --- */
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6); /* เพิ่มความเข้มพื้นหลัง */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-container {
+  background: white;
+  width: 850px; /* ขยายขนาด */
+  max-width: 95%;
+  max-height: 90vh;
+  border-radius: 14px;
+  padding: 30px;
+  overflow-y: auto;
+  animation: fadeIn .3s ease-out;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.modal-close {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.modal-close:hover {
+    color: #1f2937;
+}
+
+.modal-header {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 15px;
+}
+
+.modal-body-content h3 {
+    font-size: 18px;
+    color: #374151;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.modal-divider {
+    border: 0;
+    height: 1px;
+    background: #e5e7eb;
+    margin: 25px 0;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full {
+    flex: 0 0 100%;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4b5563;
+    margin-bottom: 6px;
+}
+
+.form-group .required {
+    color: #ef4444; /* สีแดงสำหรับ Required */
+    margin-left: 4px;
+}
+
+.form-group input, 
+.form-group select, 
+.form-group textarea {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 15px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  background-color: #f9fafb;
+}
+
+.form-group input:focus, 
+.form-group select:focus, 
+.form-group textarea:focus {
+    border-color: #3b82f6; /* สีน้ำเงินเมื่อ focus */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    background-color: white;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.cancel-btn {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancel-btn:hover {
+    background: #4b5563;
+}
+
+.submit-btn {
+  background: #3b82f6; /* เปลี่ยนเป็นสีน้ำเงิน */
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submit-btn:hover {
+    background: #2563eb;
+}
+
+/* Custom File Upload Styling */
+.file-upload-container {
+    display: flex;
+    align-items: center;
+}
+
+.file-input-hidden {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.file-upload-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    border: 1px dashed #9ca3af;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #f9fafb;
+    color: #4b5563;
+    font-size: 14px;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.file-upload-label:hover {
+    background-color: #eff6ff;
+    border-color: #3b82f6;
+    color: #3b82f6;
+}
+
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(.97) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 800px) {
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+}
+@media (max-width: 768px) {
+    .job-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .job-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    .job-id {
+        margin-bottom: 4px;
+    }
+    
+    .action-buttons {
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-self: center;
+        margin-top: 16px;
+    }
+
+    .job-badge {
+        position: static;
+        text-align: center;
+        margin-bottom: 10px;
+        align-self: flex-start;
+    }
+
+    .search-filter-box {
+        justify-content: flex-start;
+    }
+    .search-container {
+        flex: 1 1 100%; /* ทำให้ Search เต็มบรรทัดบนมือถือ */
+        max-width: 100%;
+        order: -1; /* ย้าย Search ขึ้นไปด้านบน */
+    }
+    .filter-group {
+        flex: 1 1 45%; /* ให้ Filter แบ่งเป็น 2 คอลัมน์ */
+    }
+    .create-job-btn {
+        flex: 1 1 100%;
+    }
+    .modal-container {
+        padding: 20px;
+    }
+}
+
+/* JobManagement.css */
+
+/* ... (โค้ด CSS เดิมทั้งหมด) ... */
+
+/* --- Job Card Action Buttons (แก้ไข) --- */
+/* ปรับปุ่มรายละเอียดเป็นสีเหลือง (ข้อ 1) */
+.edit-btn {
+    background-color: #fbbf24; 
+}
+
+.edit-btn:hover {
+    background-color: #eab308;
+}
+
+/* ปุ่มลบยังคงเป็นสีแดง (ข้อ 2) */
+.delete-btn {
+    background-color: #ef4444; 
+}
+
+.delete-btn:hover {
+    background-color: #dc2626;
+}
+
+/* --- Modal (ส่วนที่ปรับปรุง) --- */
+
+.modal-container {
+    background: white;
+    width: 850px; 
+    max-width: 95%;
+    max-height: 90vh;
+    border-radius: 14px;
+    padding: 30px;
+    overflow-y: auto;
+    animation: fadeIn .3s ease-out;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Style สำหรับ Modal มอบหมายงานให้มีขนาดเล็กลง (ข้อ 3) */
+.modal-container.small-modal {
+    width: 600px;
+    padding: 25px;
+}
+
+.assign-job-title {
+    font-size: 16px;
+    color: #4b5563;
+    margin-bottom: 20px;
+}
+
+/* สไตล์รายชื่อช่างใน Modal (ข้อ 3) */
+.technician-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tech-card {
+    display: flex;
+    align-items: center;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: background-color 0.2s;
+}
+
+.tech-card:hover {
+    background-color: #f0f4f7;
+}
+
+.tech-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    flex-shrink: 0;
+    margin-right: 15px;
+}
+
+/* สี Avatar ตามที่คุณต้องการ */
+.tech-avatar.green { background-color: #10b981; }
+.tech-avatar.red { background-color: #ef4444; }
+.tech-avatar.orange { background-color: #f97316; }
+
+
+.tech-info {
+    flex-grow: 1;
+}
+
+.tech-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: #1f2937;
+    margin-bottom: 5px;
+}
+
+.tech-contact, .tech-skills {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    color: #6b7280;
+    gap: 5px;
+}
+
+.assign-tech-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background-color: #3b82f6; /* สีฟ้า */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    flex-shrink: 0;
+}
+
+.assign-tech-btn:hover {
+    background-color: #2563eb;
+}
+
+/* ... (โค้ด Responsive เดิม) ... */
