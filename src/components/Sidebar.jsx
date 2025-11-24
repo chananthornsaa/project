@@ -1,6 +1,5 @@
 // ========================================
 // Sidebar.jsx - Component เมนูด้านซ้าย
-// (UPDATED: ลบ Role Switcher และ Prop ที่เกี่ยวข้องออก)
 // ========================================
 
 import React from 'react';
@@ -13,16 +12,9 @@ import {
   Settings 
 } from 'lucide-react';
 
-// ========================================
-// Sidebar Component
-// Props: onRoleChange ถูกลบออกแล้ว
-// ========================================
 function Sidebar({ userRole, currentPage, onPageChange }) {
   return (
     <div className="sidebar">
-      {/* ========================================
-          Navigation Menu - เมนูนำทาง
-          ======================================== */}
       <nav className="sidebar-nav">
         
         {/* เมนู Dashboard */}
@@ -34,7 +26,7 @@ function Sidebar({ userRole, currentPage, onPageChange }) {
           <span>แดชบอร์ด</span>
         </button>
 
-        {/* เมนูจัดการใบงาน */}
+        {/* เมนูจัดการใบงาน - เปิดให้เห็นทั้งคู่ */}
         <button 
           className={currentPage === 'jobs' ? 'nav-btn active' : 'nav-btn'}
           onClick={() => onPageChange('jobs')}
@@ -83,8 +75,6 @@ function Sidebar({ userRole, currentPage, onPageChange }) {
           <span>ตั้งค่า</span>
         </button>
       </nav>
-      
-      {/* Role Switcher ถูกลบออกแล้ว (ตามคำสั่ง) */}
     </div>
   );
 }
