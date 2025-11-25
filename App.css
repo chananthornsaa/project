@@ -1,0 +1,16 @@
+/* UI ตรง Mockup – สะอาดตา มืออาชีพ */
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; }
+
+.sidebar { background: white; border-right: 1px solid #e9ecef; }
+.card { border: none; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+.card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); transform: translateY(-2px); transition: all 0.2s; }
+
+.stats-card { border-left: 4px solid; text-align: center; padding: 20px; }
+.stats-completed { border-left-color: #28a745; background: rgba(40,167,69,0.05); }
+.stats-time { border-left-color: #17a2b8; background: rgba(23,162,184,0.05); }
+.stats-rating { border-left-color: #ffc107; background: rgba(255,193,7,0.05); }
+.stats-active { border-left-color: #007bff; background: rgba(0,123,255,0.05); }
+
+.note-box { background: #f8f9fa; border-left: 3px solid #007bff; padding: 15px; border-radius: 0 8px 8px 0; }
+.star { color: #ffc107; }
+.badge-status { padding: 8px 12px; border-radius: 20px; font-weight: 500; }
