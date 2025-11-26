@@ -2,7 +2,6 @@
 // Dashboard.jsx - Main Router
 // (UPDATED: ปรับปรุงสิทธิ์การเข้าถึงหน้ารายงานสรุป)
 // ========================================
-
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from '../../components/navbar';
@@ -15,20 +14,72 @@ import SupervisorDashboard from './SupervisorDashboard';
 import JobManagement from '../Admin/JobManagement';
 import TechnicianManagement from '../Admin/TechnicianManagement';
 import ReportManagement from '../Admin/ReportManagement';
+import Checkwork from '../Supervisor/Checkwork.jsx';
+
+// Import mock data
+import mockData from '../../data/Techsample.jsx';
+const { sampleJobs } = mockData;
 
 function Dashboard() {
   const location = useLocation();
   const userRole = location.state?.userRole || 'admin'; 
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [jobs, setJobs] = useState(sampleJobs);
 
   const handlePageChange = (page) => setCurrentPage(page);
+
+  // ✅ เพิ่ม: Function สำหรับมอบหมายงาน (จำเป็นสำหรับ SupervisorDashboard)
+// ✅ ฟังก์ชันมอบหมายงาน
+  const assignJob = (jobId, technicianName) => {
+    setJobs(prevJobs => 
+      prevJobs.map(job => 
+        job.id === jobId 
+          ? { ...job, technician: technicianName, status: 'กำลังทำ' } 
+          : job
+      )
+    );
+  };
+
+  // Function สำหรับอนุมัติงาน
+  const approveJob = (jobId) => {
+    setJobs(prevJobs => 
+      prevJobs.map(job => 
+        job.id === jobId ? { ...job, status: 'เสร็จสิ้น' } : job
+      )
+    );
+    alert(`✅ อนุมัติงาน ${jobId} เรียบร้อย`);
+  };
+
+  // Function สำหรับตีกลับงาน
+  const rejectJob = (jobId) => {
+    setJobs(prevJobs => 
+      prevJobs.map(job => 
+        job.id === jobId ? { ...job, status: 'กำลังทำ' } : job
+      )
+    );
+    alert(`🔄 ตีกลับงาน ${jobId} ให้ช่างแก้ไข`);
+  };
+
+  // นับงานรอตรวจสอบ
+  const pendingJobsCount = jobs.filter(job => job.status === 'รอตรวจสอบ').length;
 
   const renderContent = () => {
     switch(currentPage) {
         case 'dashboard':
             if (userRole === 'admin') return <AdminDashboard handlePageChange={handlePageChange} />;
-            if (userRole === 'supervisor') return <SupervisorDashboard handlePageChange={handlePageChange} />;
+            
+            // ✅ แก้ไข: ส่ง props (jobs, assignJob, count) ไปให้ SupervisorDashboard
+            if (userRole === 'supervisor') {
+                return (
+                    <SupervisorDashboard 
+                        jobs={jobs}
+                        assignJob={assignJob}
+                        pendingJobsCount={pendingJobsCount}
+                        handlePageChange={handlePageChange} 
+                    />
+                );
+            }
             return <div>Unauthorized</div>;
         
         case 'jobs': 
@@ -66,7 +117,14 @@ function Dashboard() {
             return <div className="page-content"><h2>⚙️ ตั้งค่า</h2><p>หน้าตั้งค่าระบบ</p></div>;
         
         case 'review':
-             if (userRole === 'supervisor') return <div className="page-content"><h2>✅ ตรวจงาน</h2><p>หน้าตรวจสอบและอนุมัติงาน</p></div>;
+             if (userRole === 'supervisor') {
+                return <Checkwork 
+                  pendingJobs={jobs} // ส่ง jobs ทั้งหมดไปกรองใน Checkwork หรือส่งเฉพาะที่กรองแล้วก็ได้
+                  approveJob={approveJob} 
+                  rejectJob={rejectJob} 
+                  pendingJobsCount={pendingJobsCount}
+                />;
+             }
              return <div>Unauthorized</div>;
 
         default: 
@@ -76,7 +134,12 @@ function Dashboard() {
 
   return (
     <div className="app-container">
-      <Navbar userRole={userRole} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
+      <Navbar 
+        userRole={userRole} 
+        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} 
+        sidebarOpen={sidebarOpen}
+        pendingJobsCount={pendingJobsCount}
+      />
       <div className="main-layout">
         {sidebarOpen && <Sidebar userRole={userRole} currentPage={currentPage} onPageChange={handlePageChange} />}
         <div className="content-area">
