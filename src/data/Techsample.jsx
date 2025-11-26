@@ -26,7 +26,7 @@ const sampleJobs = [
   { 
     id: 'J003', name: 'ตรวจเช็คระบบไฟฟ้า', date: '2024-11-13', 
     technician: 'สมศักดิ์ ขยัน', technicianId: 'tech2', creator: 'System',
-    status: 'เสร็จสิ้น', department: 'ไฟฟ้า', location: 'อาคาร C',
+    status: 'กำลังทำ', department: 'ไฟฟ้า', location: 'อาคาร C',
     updatedAt: '2025-11-21 10:15', priority: 'สูง', dueDate: '2024-11-15'
   },
   { 

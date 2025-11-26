@@ -137,8 +137,7 @@ export default function Login() {
                     <div className="login-icon-box">
                         <User color="white" size={32} />
                     </div>
-                    <h1 className="login-title">Technician System</h1>
-                    <p className="login-subtitle">ระบบจัดการช่างเทคนิค</p>
+                    <h1 className="login-title">Tech Job</h1>
                 </div>
 
                 {/* LOGIN FORM */}
