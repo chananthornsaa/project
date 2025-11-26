@@ -26,15 +26,6 @@ function Sidebar({ userRole, currentPage, onPageChange }) {
           <span>แดชบอร์ด</span>
         </button>
 
-        {/* เมนูจัดการใบงาน - เปิดให้เห็นทั้งคู่ */}
-        <button 
-          className={currentPage === 'jobs' ? 'nav-btn active' : 'nav-btn'}
-          onClick={() => onPageChange('jobs')}
-        >
-          <ClipboardList size={18} />
-          <span>จัดการใบงาน</span>
-        </button>
-
         {/* เมนูจัดการช่าง - แสดงเฉพาะ Admin */}
         {userRole === 'admin' && (
           <button 
@@ -56,15 +47,6 @@ function Sidebar({ userRole, currentPage, onPageChange }) {
             <span>ตรวจงาน</span>
           </button>
         )}
-
-        {/* เมนูรายงานสรุป */}
-        <button 
-          className={currentPage === 'reports' ? 'nav-btn active' : 'nav-btn'}
-          onClick={() => onPageChange('reports')}
-        >
-          <BarChart3 size={18} />
-          <span>รายงานสรุป</span>
-        </button>
 
         {/* เมนูตั้งค่า */}
         <button 

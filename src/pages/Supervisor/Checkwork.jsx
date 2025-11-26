@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import { CheckSquare, Download, Send, UserX, CheckCircle } from 'lucide-react';
-import jsPDF from 'jspdf';
+import jsPDF from "jspdf";
 import html2canvas from 'html2canvas';
 
 const MY_DEPARTMENT = 'ช่างไฟฟ้า';

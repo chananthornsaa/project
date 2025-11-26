@@ -39,7 +39,7 @@ function Navbar({ userRole, onToggleSidebar, sidebarOpen }) {
         </button>
 
         {/* โลโก้ระบบ */}
-        <div className="logo">⚙️ ระบบจ่ายงานช่าง</div>
+        <div className="logo">Tech Job</div>
       </div>
       
       {/* ส่วนขวาของ Navbar */}
