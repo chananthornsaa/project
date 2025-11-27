@@ -26,6 +26,15 @@ function Sidebar({ userRole, currentPage, onPageChange }) {
           <span>แดชบอร์ด</span>
         </button>
 
+          {/* เมนูจัดการใบงาน */}
+        {userRole === 'admin' && (<button 
+          className={currentPage === 'jobs' ? 'nav-btn active' : 'nav-btn'}
+          onClick={() => onPageChange('jobs')}
+        >
+          <ClipboardList size={18} />
+          <span>จัดการใบงาน</span>
+        </button>)
+}
         {/* เมนูจัดการช่าง - แสดงเฉพาะ Admin */}
         {userRole === 'admin' && (
           <button 
