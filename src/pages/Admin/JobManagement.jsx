@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import {
   Search, Clock, FileText, CircleDot, CheckCircle,
-  ClipboardList, Edit, Trash2, PlusCircle, X, Phone, Mail, Wrench
+  ClipboardList, Edit, Trash2, PlusCircle, X, Phone, Mail, Wrench, Filter, AlertTriangle
 } from "lucide-react";
 // FIX IMPORT: ต้องดึง sampleJobs ออกมาจาก Object
 import mockData from "../../data/Techsample.jsx";
@@ -11,22 +11,24 @@ import "./JobManagement.css";
 // ----------------------------------------------------------------
 // Data and Helper Functions
 // ----------------------------------------------------------------
-const technicianList = [
-  { id: 'SM', name: 'สมศักดิ์ ขยัน', phone: '0812345678', email: 'som@example.com', skills: 'ไฟฟ้า, แอร์, ประปา (10 ปี)', color: 'green' },
-  { id: 'YG', name: 'สมหญิง รักงาน', phone: '0890001111', email: 'ying@example.com', skills: 'เครื่องกล, โครงสร้าง (3 ปี)', color: 'red' },
-  { id: 'SY', name: 'สมชาย ใจดี', phone: '0927778888', email: 'shy@example.com', skills: 'ระบบเครือข่าย, IT (5 ปี)', color: 'orange' }
+const departmentList = [
+  { id: 'ELEC', name: 'แผนกไฟฟ้า', description: 'ติดตั้งและซ่อมแซมระบบไฟฟ้า', icon: '⚡', color: 'blue', staffCount: 5 },
+  { id: 'PLUMB', name: 'แผนกประปา', description: 'ซ่อมแซมระบบประปาและสุขภัณฑ์', icon: '💧', color: 'cyan', staffCount: 3 },
+  { id: 'AC', name: 'แผนกเครื่องปรับอากาศ', description: 'บำรุงรักษาและซ่อมแอร์', icon: '❄️', color: 'sky', staffCount: 4 },
+  { id: 'MECH', name: 'แผนกเครื่องกล', description: 'ซ่อมแซมเครื่องจักรและอุปกรณ์', icon: '⚙️', color: 'gray', staffCount: 4 },
+  { id: 'IT', name: 'แผนก IT', description: 'ซ่อมคอมพิวเตอร์และระบบเครือข่าย', icon: '💻', color: 'purple', staffCount: 3 }
 ];
 
 // Helper: Logic สร้างรหัสงานอัตโนมัติ (J001, J002, ...)
 const generateNewJobId = (currentJobs) => {
-    // ดึงตัวเลขสูงสุดจาก ID งานปัจจุบัน
-    const existingIds = currentJobs.map(job => {
-        const match = job.id.match(/J(\d+)/);
-        return match ? parseInt(match[1], 10) : 0;
-    });
-    const maxId = Math.max(...existingIds, 0);
-    const nextIdNumber = maxId + 1;
-    return `J${nextIdNumber.toString().padStart(3, '0')}`;
+  // ดึงตัวเลขสูงสุดจาก ID งานปัจจุบัน
+  const existingIds = currentJobs.map(job => {
+    const match = job.id.match(/J(\d+)/);
+    return match ? parseInt(match[1], 10) : 0;
+  });
+  const maxId = Math.max(...existingIds, 0);
+  const nextIdNumber = maxId + 1;
+  return `J${nextIdNumber.toString().padStart(3, '0')}`;
 };
 
 // ----------------------------------------------------------------
@@ -36,6 +38,8 @@ function JobManagement() {
   const [jobs, setJobs] = useState(sampleJobs);
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [filterDepartment, setFilterDepartment] = useState('ทั้งหมด');
+  const [filterPriority, setFilterPriority] = useState('ทั้งหมด');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [jobToAssign, setJobToAssign] = useState(null);
@@ -63,17 +67,17 @@ function JobManagement() {
       alert("กรุณากรอก ชื่องาน");
       return;
     }
-    
+
     const finalJobId = newJobId; // ใช้ ID ที่สร้างอัตโนมัติ
     const newJob = {
-      id: finalJobId, 
+      id: finalJobId,
       name: formData.jobName,
-      technician: "ไม่มีช่าง",
+      technician: "ยังไม่มอบหมายแผนก",
+      department: "ยังไม่มอบหมายแผนก",
       date: formData.date || new Date().toISOString().split("T")[0],
       location: formData.location || "ไม่ระบุ",
-      status: "รออนุมัติ", 
-      department: "ไม่ระบุ", 
-      priority: formData.priority, 
+      status: "รออนุมัติ",
+      priority: formData.priority,
       updatedAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
       creator: 'Admin'
     };
@@ -92,25 +96,29 @@ function JobManagement() {
 
   const openAssignModal = (job) => { setJobToAssign(job); setShowAssignModal(true); };
 
-  const handleAssignJob = (jobId, technicianName) => {
-    setJobs(jobs.map(job => job.id === jobId ? { ...job, technician: technicianName, status: 'กำลังทำ' } : job ));
+  const handleAssignJob = (jobId, departmentName) => {
+    setJobs(jobs.map(job => job.id === jobId ? { ...job, department: departmentName, technician: departmentName, status: 'กำลังทำ' } : job));
     setShowAssignModal(false);
     setJobToAssign(null);
-    alert(`🧑‍🔧 มอบหมายงาน ${jobId} ให้กับ ${technicianName} แล้ว!`);
+    alert(`📋 มอบหมายงาน ${jobId} ให้กับ ${departmentName} แล้ว!`);
   };
 
   // --- Helpers for UI ---
   const getStatusBadgeClass = (status) => {
     switch (status) {
-      case "รออนุมัติ": case "รอดำเนินการ": return "job-badge job-badge-urgent";
-      case "กำลังทำ": case "กำลังดำเนินการ": return "job-badge job-badge-progress";
-      case "เสร็จสิ้น": case "ผ่านการตรวจสอบ": return "job-badge job-badge-completed";
-      case "รอตรวจสอบ": return "job-badge job-badge-review";
-      default: return "job-badge";
+      case "รออนุมัติ": return "status-badge status-unassigned";
+      case "รอดำเนินการ": return "status-badge status-pending";
+      case "กำลังทำ": case "กำลังดำเนินการ": return "status-badge status-in-progress";
+      case "เสร็จสิ้น": case "ผ่านการตรวจสอบ": return "status-badge status-completed";
+      case "รอตรวจสอบ": return "status-badge status-review";
+      default: return "status-badge";
     }
   };
+
   const getStatusLabel = (status) => status;
 
+  // สร้างรายการแผนกที่ไม่ซ้ำกัน
+  const uniqueDepartments = useMemo(() => ['ทั้งหมด', ...new Set(jobs.map(j => j.department).filter(Boolean))], [jobs]);
 
   // --- Filter Logic ---
   const filteredJobs = useMemo(() => {
@@ -119,12 +127,15 @@ function JobManagement() {
       const matchStatus = statusFilter === "all" ||
         (statusFilter === "urgent" && (status === "รออนุมัติ" || status === "รอดำเนินการ")) ||
         (statusFilter === "in-progress" && (status === "กำลังทำ" || status === "กำลังดำเนินการ")) ||
-        (statusFilter === "completed" && (status === "เสร็จสิ้น" || status === "ผ่านการตรวจสอบ"));
+        (statusFilter === "completed" && (status === "เสร็จสิ้น" || status === "ผ่านการตรวจสอบ")) ||
+        (statusFilter === "review" && status === "รอตรวจสอบ");
       const matchSearch = job.name.toLowerCase().includes(searchText.toLowerCase()) || job.id.toLowerCase().includes(searchText.toLowerCase());
-      return matchStatus && matchSearch;
+      const matchDept = filterDepartment === 'ทั้งหมด' || job.department === filterDepartment;
+      const matchPriority = filterPriority === 'ทั้งหมด' || job.priority === filterPriority;
+      return matchStatus && matchSearch && matchDept && matchPriority;
     }).sort((a, b) => new Date(b.date) - new Date(a.date));
-  }, [jobs, searchText, statusFilter]);
-  
+  }, [jobs, searchText, statusFilter, filterDepartment, filterPriority]);
+
   // --- Counts ---
   const allJobsCount = jobs.length;
   const urgentCount = jobs.filter(job => job.status === 'รออนุมัติ' || job.status === 'รอดำเนินการ').length;
@@ -136,19 +147,27 @@ function JobManagement() {
       <h2>📋 จัดการรายการงานทั้งหมด</h2>
       <hr />
 
-      {/* Status Cards (Header Filter) */}
+      {/* Status Cards (Display Only) */}
       <div className="status-cards-row">
-        <div className={`status-card ${statusFilter === 'all' ? 'active' : ''}`} onClick={() => setStatusFilter('all')}>
-          <FileText size={20} /><div><div className="card-label">งานทั้งหมด</div><div className="card-number">{allJobsCount}</div></div>
+        <div className="status-card-simple">
+          <div className="card-label-simple">งานทั้งหมด</div>
+          <div className="card-number-simple">{allJobsCount}</div>
         </div>
-        <div className={`status-card ${statusFilter === 'completed' ? 'active' : ''}`} onClick={() => setStatusFilter('completed')}>
-          <CheckCircle size={20} /><div><div className="card-label">เสร็จสิ้น/ผ่านตรวจสอบ</div><div className="card-number">{completedCount}</div></div>
+        <div className="status-card-simple">
+          <div className="card-label-simple">รออนุมัติ</div>
+          <div className="card-number-simple blue">{urgentCount}</div>
         </div>
-        <div className={`status-card ${statusFilter === 'in-progress' ? 'active' : ''}`} onClick={() => setStatusFilter('in-progress')}>
-          <CircleDot size={20} /><div><div className="card-label">กำลังดำเนินการ</div><div className="card-number">{inProgressCount}</div></div>
+        <div className="status-card-simple">
+          <div className="card-label-simple">กำลังดำเนินการ</div>
+          <div className="card-number-simple orange">{inProgressCount}</div>
         </div>
-        <div className={`status-card ${statusFilter === 'urgent' ? 'active' : ''}`} onClick={() => setStatusFilter('urgent')}>
-          <Clock size={20} /><div><div className="card-label">รออนุมัติ/รอดำเนินการ</div><div className="card-number">{urgentCount}</div></div>
+        <div className="status-card-simple">
+          <div className="card-label-simple">กำลังทำ</div>
+          <div className="card-number-simple blue">{completedCount}</div>
+        </div>
+        <div className="status-card-simple highlight">
+          <div className="card-label-simple">รอตรวจสอบ ⭐</div>
+          <div className="card-number-simple yellow">{jobs.filter(j => j.status === 'รอตรวจสอบ').length}</div>
         </div>
       </div>
 
@@ -161,38 +180,91 @@ function JobManagement() {
           <Search size={18} className="search-icon" />
           <input type="text" placeholder="ค้นหารายการงาน, รหัสงาน, ชื่องาน..." value={searchText} onChange={(e) => setSearchText(e.target.value)} className="search-input" />
         </div>
+        <div className="filter-container">
+          <Filter size={20} />
+          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="filter-select">
+            <option value="all">สถานะทั้งหมด</option>
+            <option value="urgent">รออนุมัติ/รอดำเนินการ</option>
+            <option value="in-progress">กำลังดำเนินการ</option>
+            <option value="completed">เสร็จสิ้น/ผ่านตรวจสอบ</option>
+            <option value="review">รอตรวจสอบ</option>
+          </select>
+        </div>
+        <div className="filter-container">
+          <FileText size={20} />
+          <select value={filterDepartment} onChange={e => setFilterDepartment(e.target.value)} className="filter-select">
+            {uniqueDepartments.map(d => <option key={d} value={d}>{d}</option>)}
+          </select>
+        </div>
+        <div className="filter-container">
+          <AlertTriangle size={20} />
+          <select value={filterPriority} onChange={e => setFilterPriority(e.target.value)} className="filter-select">
+            <option>ทั้งหมด</option>
+            <option>ด่วนมาก</option>
+            <option>สูง</option>
+            <option>ปานกลาง</option>
+            <option>ต่ำ</option>
+          </select>
+        </div>
       </div>
 
 
-      {/* Job Cards */}
-      <div className="job-list">
+      {/* Job Table */}
+      <div className="table-container">
+        <div className="table-header-controls">
+          <h3 className="table-title">รายการงานทั้งหมด ({filteredJobs.length})</h3>
+        </div>
+
         {filteredJobs.length > 0 ? (
-          filteredJobs.map((job) => (
-            <div key={job.id} className="job-card">
-              <div className="job-info">
-                <div className="job-header">
-                  <span className="job-id">{job.id}</span>
-                  <span className="job-name">{job.name}</span>
-                </div>
-                <div className="job-detail">ช่าง: {job.technician || 'ยังไม่มอบหมาย'}</div>
-                <div className="job-detail">วันที่แจ้ง: {job.date}</div>
-                <div className="job-detail">ตำแหน่ง: {job.location || 'ไม่ระบุ'}</div>
-              </div>
-
-              <div className={getStatusBadgeClass(job.status)}>{getStatusLabel(job.status)}</div>
-
-              <div className="action-buttons">
-                {(job.status === 'รออนุมัติ' || job.status === 'รอดำเนินการ') && (
-                  <button className="assign-btn" onClick={() => openAssignModal(job)}>
-                    <ClipboardList size={18} /><span>มอบหมายงาน</span>
-                  </button>
-                )}
-                <button className="edit-btn"><Edit size={18} /><span>แก้ไข</span></button>
-                <button className="delete-btn" onClick={() => handleDeleteJob(job.id)}><Trash2 size={18} /><span>ลบ</span></button>
-              </div>
-            </div>
-          ))
-        ) : (<div className="no-jobs-message"><h3>🎉 ไม่มีรายการงานที่ตรงกับเงื่อนไข</h3></div>)}
+          <table className="job-table">
+            <thead>
+              <tr>
+                <th>รหัสงาน</th>
+                <th>ชื่องาน</th>
+                <th>แผนก</th>
+                <th>สถานะ</th>
+                <th>สถานที่</th>
+                <th>วันที่</th>
+                <th>จัดการ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredJobs.map((job) => (
+                <tr key={job.id}>
+                  <td><strong>{job.id}</strong></td>
+                  <td className="job-name">{job.name}</td>
+                  <td>{job.department || 'ยังไม่มอบหมายแผนก'}</td>
+                  <td>
+                    <span className={getStatusBadgeClass(job.status)}>
+                      {getStatusLabel(job.status)}
+                    </span>
+                  </td>
+                  <td>{job.location || 'ไม่ระบุ'}</td>
+                  <td>{job.date}</td>
+                  <td>
+                    <div className="job-actions-cell">
+                      {(job.status === 'รออนุมัติ' || job.status === 'รอดำเนินการ') && (
+                        <button className="assign-btn" onClick={() => openAssignModal(job)}>
+                          <ClipboardList size={16} />มอบหมาย
+                        </button>
+                      )}
+                      <button className="edit-btn">
+                        <Edit size={16} />แก้ไข
+                      </button>
+                      <button className="delete-btn" onClick={() => handleDeleteJob(job.id)}>
+                        <Trash2 size={16} />ลบ
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <div className="no-jobs-message">
+            <h3>🎉 ไม่มีรายการงานที่ตรงกับเงื่อนไข</h3>
+          </div>
+        )}
       </div>
 
       {/* ---------------- Modal Create Job ---------------- */}
@@ -211,10 +283,10 @@ function JobManagement() {
               <div className="form-row">
                 {/* ช่องเลือกความสำคัญ */}
                 <div className="form-group">
-                    <label>ความสำคัญ</label>
-                    <select name="priority" value={formData.priority} onChange={onChangeForm}>
-                        {['ด่วนมาก', 'สูง', 'ปานกลาง', 'ต่ำ'].map(p => <option key={p} value={p}>{p}</option>)}
-                    </select>
+                  <label>ความสำคัญ</label>
+                  <select name="priority" value={formData.priority} onChange={onChangeForm}>
+                    {['ด่วนมาก', 'สูง', 'ปานกลาง', 'ต่ำ'].map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
                 </div>
                 <div className="form-group"><label>ประเภทงาน</label><select name="jobType" value={formData.jobType} onChange={onChangeForm}><option value="">เลือกประเภทงาน</option><option>ซ่อมบำรุง</option><option>ติดตั้ง</option></select></div>
               </div>
@@ -242,16 +314,22 @@ function JobManagement() {
       {/* ---------------- Modal Assign Job ---------------- */}
       {showAssignModal && jobToAssign && (
         <div className="modal-backdrop">
-          <div className="modal-container small-modal"> 
+          <div className="modal-container small-modal">
             <X className="modal-close" onClick={() => setShowAssignModal(false)} size={24} />
-            <div className="modal-header">🧑‍🔧 มอบหมายงาน: {jobToAssign.name}</div>
-            <p className="assign-job-title">เลือกช่างสำหรับ: {jobToAssign.name}</p>
-            <div className="technician-list">
-              {technicianList.map(tech => (
-                <div key={tech.id} className="tech-card">
-                  <div className={`tech-avatar ${tech.color}`}>{tech.id}</div>
-                  <div className="tech-info"><div className="tech-name">{tech.name}</div><div className="tech-skills"><Wrench size={14} /> {tech.skills}</div></div>
-                  <button className="assign-tech-btn" onClick={() => handleAssignJob(jobToAssign.id, tech.name)}><ClipboardList size={18} /> มอบหมายงาน</button>
+            <div className="modal-header">📋 มอบหมายงาน: {jobToAssign.name}</div>
+            <p className="assign-job-title">เลือกแผนกสำหรับ: {jobToAssign.name}</p>
+            <div className="department-list">
+              {departmentList.map(dept => (
+                <div key={dept.id} className="dept-card">
+                  <div className={`dept-icon ${dept.color}`}>{dept.icon}</div>
+                  <div className="dept-info">
+                    <div className="dept-name">{dept.name}</div>
+                    <div className="dept-description">{dept.description}</div>
+                    <div className="dept-staff">👥 จำนวนเจ้าหน้าที่: {dept.staffCount} คน</div>
+                  </div>
+                  <button className="assign-dept-btn" onClick={() => handleAssignJob(jobToAssign.id, dept.name)}>
+                    <ClipboardList size={18} /> มอบหมาย
+                  </button>
                 </div>
               ))}
             </div>
