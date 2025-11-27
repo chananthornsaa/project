@@ -170,12 +170,12 @@ function AdminDashboard({ handlePageChange }) {
             </div>
 
             {/* 4. Bottom */}
-            <div className="dashboard-bottom-row">
+            {/* <div className="dashboard-bottom-row">
                 <div className="activity-log-box">
                     <div className="activity-log-title"><Clock size={18} style={{marginRight:'8px'}}/> บันทึกกิจกรรมล่าสุด</div>
                     <div className="activity-list">{activityLog.map(act => (<div key={act.id} className="activity-item"><span>{act.text}</span><span className="activity-timestamp">...</span></div>))}</div>
                 </div>
-            </div>
+            </div> */}
         </>
     );
 }
