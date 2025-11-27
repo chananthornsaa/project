@@ -1,6 +1,6 @@
 // ========================================
 // Dashboard.jsx - Main Router
-// (UPDATED: ปรับปรุงสิทธิ์การเข้าถึงหน้ารายงานสรุป)
+// (UPDATED: เพิ่มการรองรับ TechnicianDashboard ที่มีอยู่แล้ว)
 // ========================================
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -11,6 +11,9 @@ import './Dashboard.css';
 // Import Pages
 import AdminDashboard from './AdminDashboard';
 import SupervisorDashboard from './SupervisorDashboard';
+// ✅ IMPORT TechnicianDashboard ที่มีอยู่แล้ว
+import TechnicianDashboard from '../Technician/TechnicianDashboard';
+
 import JobManagement from '../Admin/JobManagement';
 import TechnicianManagement from '../Admin/TechnicianManagement';
 import ReportManagement from '../Admin/ReportManagement';
@@ -29,8 +32,7 @@ function Dashboard() {
 
   const handlePageChange = (page) => setCurrentPage(page);
 
-  // ✅ เพิ่ม: Function สำหรับมอบหมายงาน (จำเป็นสำหรับ SupervisorDashboard)
-// ✅ ฟังก์ชันมอบหมายงาน
+  // ฟังก์ชันมอบหมายงาน
   const assignJob = (jobId, technicianName) => {
     setJobs(prevJobs => 
       prevJobs.map(job => 
@@ -69,7 +71,6 @@ function Dashboard() {
         case 'dashboard':
             if (userRole === 'admin') return <AdminDashboard handlePageChange={handlePageChange} />;
             
-            // ✅ แก้ไข: ส่ง props (jobs, assignJob, count) ไปให้ SupervisorDashboard
             if (userRole === 'supervisor') {
                 return (
                     <SupervisorDashboard 
@@ -80,6 +81,12 @@ function Dashboard() {
                     />
                 );
             }
+
+            // ✅ เพิ่ม: ถ้าเป็น technician ให้แสดง TechnicianDashboard
+            if (userRole === 'technician') {
+                return <TechnicianDashboard jobs={jobs} updateJobStatus={assignJob} />; // ส่ง jobs และ function ไปด้วย
+            }
+
             return <div>Unauthorized</div>;
         
         case 'jobs': 
@@ -100,12 +107,9 @@ function Dashboard() {
              return <div>Unauthorized</div>;
 
         case 'reports': 
-             // UPDATED: ใช้ Logic เดียวกับหน้า jobs
-             // Admin: เห็นหน้ารายงานตัวเต็ม
              if (userRole === 'admin') {
                 return <ReportManagement />; 
              }
-             // Supervisor: เห็นหน้า Placeholder (ไว้สำหรับดูรายงาน)
              return (
                 <div className="page-content">
                     <h2>📈 รายงานสรุป (หัวหน้าช่าง)</h2>
@@ -119,7 +123,7 @@ function Dashboard() {
         case 'review':
              if (userRole === 'supervisor') {
                 return <Checkwork 
-                  pendingJobs={jobs} // ส่ง jobs ทั้งหมดไปกรองใน Checkwork หรือส่งเฉพาะที่กรองแล้วก็ได้
+                  pendingJobs={jobs} 
                   approveJob={approveJob} 
                   rejectJob={rejectJob} 
                   pendingJobsCount={pendingJobsCount}
