@@ -76,6 +76,55 @@ export default function Login() {
         }, 800);
     };
 
+    const handleForgotPassword = (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setMessage('');
+
+        setTimeout(() => {
+            if (formData.email) {
+                setMessage('✓ ส่งลิงก์รีเซ็ตรหัสผ่านไปยังอีเมลของคุณแล้ว');
+                setTimeout(() => {
+                    setCurrentPage('resetPassword');
+                    setMessage('');
+                }, 2000);
+            } else {
+                setMessage('✗ กรุณากรอกอีเมล');
+            }
+            setIsLoading(false);
+        }, 800);
+    };
+
+    const handleResetPassword = (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setMessage('');
+
+        setTimeout(() => {
+            if (formData.newPassword && formData.confirmPassword) {
+                if (formData.newPassword === formData.confirmPassword) {
+                    setMessage('✓ เปลี่ยนรหัสผ่านสำเร็จ');
+                    setTimeout(() => {
+                        setCurrentPage('login');
+                        setFormData({
+                            username: '',
+                            password: '',
+                            email: '',
+                            newPassword: '',
+                            confirmPassword: '',
+                        });
+                        setMessage('');
+                    }, 2000);
+                } else {
+                    setMessage('✗ รหัสผ่านไม่ตรงกัน');
+                }
+            } else {
+                setMessage('✗ กรุณากรอกข้อมูลให้ครบถ้วน');
+            }
+            setIsLoading(false);
+        }, 800);
+    };
+
     // ... (ส่วนอื่นๆ ของไฟล์ Login.jsx เหมือนเดิม) ...
     // เพื่อความกระชับ ผมขอละส่วน render ที่เหลือไว้ครับ เนื่องจากไม่มีการเปลี่ยนแปลง
     return (
@@ -178,12 +227,12 @@ export default function Login() {
                         </button>
 
                         {/* Demo Credentials */}
-                        <div className="login-demo-box">
+                        {/* <div className="login-demo-box">
                             <div className="login-demo-title">🔑 ทดสอบด้วย:</div>
                             <p>technician1 / 1234 (Technician)</p>
                             <p>super1 / 1234 (Supervisor)</p>
                             <p>admin1 / 1234 (Administrator)</p>
-                        </div>
+                        </div> */}
                     </form>
                 )}
                 

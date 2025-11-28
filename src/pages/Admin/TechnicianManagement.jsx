@@ -104,18 +104,16 @@ function TechnicianManagement() {
 
     setShowEditModal(false);
     setSelectedTech(null);
-    alert(`แก้ไขข้อมูลช่าง ${editTech.name} เรียบร้อยแล้ว`);
-  };  // ฟังก์ชันสร้างช่างใหม่
-  const handleAddTechnician = () => {
-    if (!newTech.name || !newTech.email || !newTech.phone || !newTech.skill || !newTech.experience) {
-      alert('กรุณากรอกข้อมูลให้ครบถ้วน');
-      return;
-    }
+    alert(`แก้ไขข้อมูลแผนก ${editTech.name} เรียบร้อยแล้ว`);
+  };  // ฟังก์ชันสร้างแผนกใหม่
+  const handleAddTechnician = () => {
+    if (!newTech.name || !newTech.email || !newTech.phone || !newTech.skill || !newTech.experience) {
+      alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+      return;
+    }
 
-    // สร้างข้อมูลช่างใหม่
-    const newId = technicians.length > 0 ? Math.max(...technicians.map(t => t.id)) + 1 : 1;
-    
-    // สร้างตัวย่อจากชื่อ (แบบง่าย)
+    // สร้างข้อมูลแผนกใหม่
+    const newId = technicians.length > 0 ? Math.max(...technicians.map(t => t.id)) + 1 : 1;    // สร้างตัวย่อจากชื่อ (แบบง่าย)
     const getInitials = (name) => {
       try {
         return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
@@ -135,30 +133,26 @@ function TechnicianManagement() {
       location: `${newTech.skill} (${newTech.experience} ปี)` 
     };
 
-    setTechnicians([...technicians, newTechnician]);
-    // รีเซ็ตฟอร์ม
-    setNewTech({ name: '', email: '', phone: '', skill: '', experience: '' });
-    setShowAddModal(false);
-    alert(`เพิ่มช่าง ${newTechnician.name} สำเร็จ!`);
-  };
-
-  return (
+    setTechnicians([...technicians, newTechnician]);
+    // รีเซ็ตฟอร์ม
+    setNewTech({ name: '', email: '', phone: '', skill: '', experience: '' });
+    setShowAddModal(false);
+    alert(`เพิ่มแผนก ${newTechnician.name} สำเร็จ!`);
+  };  return (
     <div style={styles.container}>
-      {/* Header */}
-      <div style={styles.header}>
-        <h2 style={styles.title}>👷 จัดการทีมช่าง</h2>
-        
-        {/* Add Button (ย้ายมาไว้ข้างบนเพื่อความโดดเด่น) */}  
-        <button 
-          style={{...styles.addButton, width: 'auto'}}
-          onClick={() => setShowAddModal(true)}
-        >
-          <UserPlus size={24} />
-          <span>เพิ่มช่างใหม่</span>
-        </button>
-      </div>
-      
-      
+      {/* Header */}
+      <div style={styles.header}>
+        <h2 style={styles.title}>👷 จัดการทีมแผนก</h2>
+        
+        {/* Add Button (ย้ายมาไว้ข้างบนเพื่อความโดดเด่น) */}  
+        <button 
+          style={{...styles.addButton, width: 'auto'}}
+          onClick={() => setShowAddModal(true)}
+        >
+          <UserPlus size={24} />
+          <span>เพิ่มแผนกใหม่</span>
+        </button>
+      </div>      
 
       {/* Technician Cards */}
       <div style={styles.cardContainer}>
@@ -207,7 +201,7 @@ function TechnicianManagement() {
         <div style={styles.modalOverlay} onClick={() => setShowEditModal(false)}>
           <div style={{...styles.modal, maxWidth: '500px'}} onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <h3 style={styles.modalTitle}>✏️ แก้ไขข้อมูลช่าง</h3>
+              <h3 style={styles.modalTitle}>✏️ แก้ไขข้อมูลแผนก</h3>
               <button style={styles.modalCloseBtn} onClick={() => setShowEditModal(false)}>
                 <X size={24} color="#6b7280" />
               </button>
@@ -233,9 +227,9 @@ function TechnicianManagement() {
                 />
               </div>
 
-              {/* รหัสช่าง */}
+              {/* รหัสแผนก */}
               <div style={styles.formGroup}>
-                <label style={styles.label}>รหัสช่าง:</label>
+                <label style={styles.label}>รหัสแผนก:</label>
                 <input 
                   type="text"
                   name="techId"

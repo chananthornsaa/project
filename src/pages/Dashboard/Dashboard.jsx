@@ -31,9 +31,9 @@ function Dashboard({ jobs, setJobs, pendingJobsCount, assignJob: assignJobFromPa
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Map username ไปหาข้อมูลช่างจริง
+  // Map username ไปหาข้อมูลแผนกจริง
   const technicianMap = {
-    'technician1': { id: 'tech1', name: 'สมชาย ใจดี', phone: '081-234-5678', email: 'somchai@example.com', department: 'ช่างไฟฟ้า' },
+    'technician1': { id: 'tech1', name: 'สมชาย ใจดี', phone: '081-234-5678', email: 'somchai@example.com', department: 'แผนกไฟฟ้า' },
   };
   
   const currentTechnician = technicianMap[username] || { id: 'tech1', name: 'สมชาย ใจดี' };
@@ -58,9 +58,9 @@ function Dashboard({ jobs, setJobs, pendingJobsCount, assignJob: assignJobFromPa
   // นับงานรอตรวจสอบ (ใช้จาก props ถ้ามี ไม่งั้นคำนวณใหม่)
   const finalPendingJobsCount = pendingJobsCount !== undefined ? pendingJobsCount : jobs.filter(job => job.status === 'รอตรวจสอบ').length;
 
-  // นับงานรอมอบหมายสำหรับ Supervisor (งานที่ Admin ส่งมาแล้ว แต่ยังไม่ได้มอบหมายช่าง)
+  // นับงานรอมอบหมายสำหรับ Supervisor (งานที่ Admin ส่งมาแล้ว แต่ยังไม่ได้มอบหมายแผนก)
   const pendingAssignJobsCount = jobs.filter(job => 
-    job.department === 'ช่างไฟฟ้า' &&
+    job.department === 'แผนกไฟฟ้า' &&
     job.status === 'รอดำเนินการ' &&
     (!job.technician || job.technician === 'ไม่มีช่าง')
   ).length;

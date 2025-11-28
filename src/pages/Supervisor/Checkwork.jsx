@@ -3,7 +3,7 @@
 // ========================================
 
 import React, { useState } from 'react';
-import { CheckSquare, Download, Send, UserX, CheckCircle } from 'lucide-react';
+import { CheckSquare, Download, UserX, CheckCircle } from 'lucide-react';
 import jsPDF from "jspdf";
 import html2canvas from 'html2canvas';
 
@@ -13,8 +13,6 @@ const Checkwork = ({ pendingJobs = [], approveJob, rejectJob, jobs = [], setJobs
     const [rejectModalOpen, setRejectModalOpen] = useState(false);
     const [rejectComment, setRejectComment] = useState('');
     const [selectedJobId, setSelectedJobId] = useState(null);
-    const [returnToAdminModalOpen, setReturnToAdminModalOpen] = useState(false);
-    const [returnToAdminComment, setReturnToAdminComment] = useState('');
 
     // กรองเฉพาะงานรอตรวจสอบของแผนกเรา (รองรับทั้งชื่อเก่าและใหม่)
     const myPendingJobs = pendingJobs.filter(job => {
@@ -75,26 +73,6 @@ const Checkwork = ({ pendingJobs = [], approveJob, rejectJob, jobs = [], setJobs
         setRejectModalOpen(false);
     };
 
-    const openReturnToAdminModal = (jobId) => {
-        setSelectedJobId(jobId);
-        setReturnToAdminComment('');
-        setReturnToAdminModalOpen(true);
-    };
-
-    const confirmReturnToAdmin = () => {
-        if (!returnToAdminComment.trim()) return alert('กรุณาระบุเหตุผล');
-        const updatedJobs = jobs.map(job => {
-            if (job.id === selectedJobId) {
-                // เปลี่ยนเป็นเก็บข้อความไว้แต่ไม่ลบงาน ไม่เปลี่ยนสถานะ
-                return { ...job, adminComment: returnToAdminComment, notifiedAdmin: true };
-            }
-            return job;
-        });
-        setJobs(updatedJobs);
-        setReturnToAdminModalOpen(false);
-        alert(`ส่งข้อความไปยัง Admin สำหรับงาน ${selectedJobId} แล้ว (งานยังคงอยู่)`);
-    };
-
     const getImageUrls = (job) => {
         if (job.imageUrls && job.imageUrls.length > 0) {
             return job.imageUrls;
@@ -153,7 +131,7 @@ const Checkwork = ({ pendingJobs = [], approveJob, rejectJob, jobs = [], setJobs
 
                                 <div style={{ marginBottom: '24px', lineHeight: '1.8', color: '#374151' }}>
                                     <div style={{ background: '#f9fafb', padding: '16px', borderRadius: '12px', marginBottom: '16px' }}>
-                                        <p><strong>ช่างผู้ดำเนินการ:</strong> {job.technician}</p>
+                                        <p><strong>ผู้รับผิดชอบ:</strong> {job.technician}</p>
                                         <p><strong>แผนก:</strong> {job.department}</p>
                                         <p><strong>ความสำคัญ:</strong> <span style={{ color: job.priority === 'สูง' ? '#dc2626' : job.priority === 'ปานกลาง' ? '#f59e0b' : '#10b981', fontWeight: 'bold' }}>{job.priority || '-'}</span></p>
                                         <p><strong>ประเภทงาน:</strong> {job.jobType || '-'}</p>
@@ -182,16 +160,16 @@ const Checkwork = ({ pendingJobs = [], approveJob, rejectJob, jobs = [], setJobs
                                     )}
                                     {job.technicianReport && (
                                         <div style={{ marginTop: '12px', padding: '16px', background: '#f0fdf4', borderLeft: '4px solid #10b981', borderRadius: '12px' }}>
-                                            <p style={{ margin: 0, fontWeight: 'bold', color: '#065f46', marginBottom: '8px' }}>✅ รายงานจากช่าง:</p>
+                                            <p style={{ margin: 0, fontWeight: 'bold', color: '#065f46', marginBottom: '8px' }}>✅ รายงานจากผู้รับผิดชอบ:</p>
                                             <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{job.technicianReport}</p>
                                         </div>
                                     )}
                                 </div>
 
-                                {/* แสดงรูปที่ช่างอัพโหลด */}
+                                {/* แสดงรูปท้ีผู้รับผิดชอบอัพโหลด */}
                                 {job.reportImages && job.reportImages.length > 0 && (
                                     <div style={{ margin: '20px 0' }}>
-                                        <p style={{ fontWeight: 'bold', marginBottom: '12px', color: '#1f2937' }}>📸 รูปภาพจากช่าง ({job.reportImages.length})</p>
+                                        <p style={{ fontWeight: 'bold', marginBottom: '12px', color: '#1f2937' }}>📸 รูปภาพจากผู้รับผิดชอบ ({job.reportImages.length})</p>
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px', maxWidth: '600px' }}>
                                             {job.reportImages.map((url, i) => (
                                                 <div key={i} style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', cursor: 'pointer' }} onClick={() => window.open(url, '_blank')}>
@@ -213,7 +191,7 @@ const Checkwork = ({ pendingJobs = [], approveJob, rejectJob, jobs = [], setJobs
                                 {/* รูปตัวอย่างเก่า (ถ้ามี) */}
                                 {imageCount > 0 && (
                                     <div style={{ margin: '20px 0' }}>
-                                        <p style={{ fontWeight: 'bold', marginBottom: '12px', color: '#1f2937' }}>รูปที่ช่างส่งมา</p>
+                                        <p style={{ fontWeight: 'bold', marginBottom: '12px', color: '#1f2937' }}>รูปที่ส่งมา</p>
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px', maxWidth: '600px' }}>
                                             {imageUrls.map((url, i) => (
                                                 <div key={i} style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', cursor: 'pointer' }} onClick={() => window.open(url, '_blank')}>
@@ -245,11 +223,6 @@ const Checkwork = ({ pendingJobs = [], approveJob, rejectJob, jobs = [], setJobs
                                         <UserX size={20} /> ตีกลับแก้ไข
                                     </button>
 
-                                    <button onClick={() => openReturnToAdminModal(job.id)}
-                                        style={{ padding: '14px 20px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                                        <Send size={18} /> ส่งกลับ Admin
-                                    </button>
-
                                     <button onClick={() => downloadPDF(job)}
                                         style={{ padding: '14px 20px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                                         <Download size={18} /> PDF
@@ -266,25 +239,11 @@ const Checkwork = ({ pendingJobs = [], approveJob, rejectJob, jobs = [], setJobs
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }} onClick={() => setRejectModalOpen(false)}>
                     <div style={{ background: 'white', padding: '32px', borderRadius: '20px', width: '90%', maxWidth: '520px', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
                         <h3 style={{ margin: '0 0 20px', color: '#f97316', fontSize: '24px', fontWeight: 'bold' }}>ตีกลับงาน {selectedJobId}</h3>
-                        <p style={{ marginBottom: '20px', color: '#374151', fontSize: '16px' }}>กรุณาระบุเหตุผลให้ช่างทราบ</p>
+                        <p style={{ marginBottom: '20px', color: '#374151', fontSize: '16px' }}>กรุณาระบุเหตุผลให้ผู้รับผิดชอบทราบ</p>
                         <textarea value={rejectComment} onChange={e => setRejectComment(e.target.value)} style={{ width: '100%', minHeight: '140px', padding: '16px', borderRadius: '12px', border: '2px solid #e5e7eb', fontSize: '16px' }} placeholder="เช่น ท่อน้ำยังรั่วอยู่, เก็บสายไฟไม่เรียบร้อย" />
                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: '24px' }}>
                             <button onClick={() => setRejectModalOpen(false)} style={{ padding: '12px 28px', background: '#e5e7eb', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>ยกเลิก</button>
-                            <button onClick={confirmReject} style={{ padding: '12px 32px', background: '#f97316', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>ส่งกลับให้ช่าง</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {returnToAdminModalOpen && (
-                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }} onClick={() => setReturnToAdminModalOpen(false)}>
-                    <div style={{ background: 'white', padding: '32px', borderRadius: '20px', width: '90%', maxWidth: '540px', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
-                        <h3 style={{ margin: '0 0 20px', color: '#dc2626', fontSize: '24px', fontWeight: 'bold' }}>ส่งกลับให้ Admin แก้ไข</h3>
-                        <p style={{ marginBottom: '20px', color: '#374151', fontSize: '16px' }}>กรุณาระบุปัญหาที่พบในข้อมูลใบงาน</p>
-                        <textarea value={returnToAdminComment} onChange={e => setReturnToAdminComment(e.target.value)} placeholder="เช่น ชื่อลูกค้าผิด, รหัสงานซ้ำ" style={{ width: '100%', minHeight: '160px', padding: '16px', borderRadius: '12px', border: '2px solid #e5e7eb', fontSize: '16px' }} />
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: '24px' }}>
-                            <button onClick={() => setReturnToAdminModalOpen(false)} style={{ padding: '12px 28px', background: '#e5e7eb', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>ยกเลิก</button>
-                            <button onClick={confirmReturnToAdmin} style={{ padding: '12px 32px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>ส่งให้ Admin</button>
+                            <button onClick={confirmReject} style={{ padding: '12px 32px', background: '#f97316', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>ส่งกลับ</button>
                         </div>
                     </div>
                 </div>
