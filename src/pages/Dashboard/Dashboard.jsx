@@ -81,7 +81,7 @@ function Dashboard({ jobs, setJobs, pendingJobsCount, assignJob: assignJobFromPa
 
   // นับงานสำหรับ Admin
   const unassignedJobsCount = jobs.filter(job => 
-    (!job.department || job.department === 'ยังไม่มอบหมายแผนก') &&
+    (!job.department || job.department === 'แผนกอื่น') &&
     job.status === 'รอดำเนินการ'
   ).length;
   
@@ -212,10 +212,37 @@ function Dashboard({ jobs, setJobs, pendingJobsCount, assignJob: assignJobFromPa
         case 'review':
              if (userRole === 'supervisor') {
                 return <Checkwork 
-                  pendingJobs={jobs} // ส่ง jobs ทั้งหมดไปกรองใน Checkwork หรือส่งเฉพาะที่กรองแล้วก็ได้
-                  approveJob={approveJob} 
-                  rejectJob={rejectJob} 
-                  pendingJobsCount={pendingJobsCount}
+                  pendingJobs={jobs}
+                  jobs={jobs}
+                  setJobs={setJobs}
+                  approveJob={(jobId) => {
+                    console.log(`✅ Supervisor approving job ${jobId}`);
+                    setJobs(prevJobs => 
+                      prevJobs.map(job => 
+                        job.id === jobId ? { 
+                          ...job, 
+                          status: 'เสร็จสิ้น',
+                          approvedAt: new Date().toISOString(),
+                          approvedBy: 'หัวหน้าช่าง'
+                        } : job
+                      )
+                    );
+                  }} 
+                  rejectJob={(jobId, reason) => {
+                    console.log(`⚠️ Supervisor rejecting job ${jobId}`, reason);
+                    setJobs(prevJobs => 
+                      prevJobs.map(job => 
+                        job.id === jobId ? { 
+                          ...job, 
+                          status: 'รอดำเนินการ',
+                          rejected: true,
+                          rejectionReason: reason,
+                          rejectedAt: new Date().toISOString()
+                        } : job
+                      )
+                    );
+                  }} 
+                  pendingJobsCount={finalPendingJobsCount}
                 />;
              }
              return <div>Unauthorized</div>;

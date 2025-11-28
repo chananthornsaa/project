@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from "react";
 import {
   Search, Clock, FileText, CircleDot, CheckCircle,
-  ClipboardList, Edit, Trash2, PlusCircle, X, Phone, Mail, Wrench, Filter, AlertTriangle
+  ClipboardList, Edit, Trash2, PlusCircle, X, Phone, Mail, Wrench, Filter, AlertTriangle,
+  Zap, Droplet, Wind, Settings, Laptop
 } from "lucide-react";
 // FIX IMPORT: ต้องดึง sampleJobs ออกมาจาก Object
 import mockData from "../../data/Techsample.jsx";
@@ -11,12 +12,20 @@ import "./JobManagement.css";
 // ----------------------------------------------------------------
 // Data and Helper Functions
 // ----------------------------------------------------------------
+// ========================================
+// รายการแผนกต่างๆ พร้อม React Icons
+// - Zap: ไฟฟ้า (⚡)
+// - Droplet: ประปา (💧)
+// - Wind: แอร์/ลม (❄️)
+// - Settings: เครื่องกล (⚙️)
+// - Laptop: IT/คอมพิวเตอร์ (💻)
+// ========================================
 const departmentList = [
-  { id: 'ELEC', name: 'แผนกไฟฟ้า', description: 'ติดตั้งและซ่อมแซมระบบไฟฟ้า', icon: '⚡', color: 'blue', staffCount: 5 },
-  { id: 'PLUMB', name: 'แผนกประปา', description: 'ซ่อมแซมระบบประปาและสุขภัณฑ์', icon: '💧', color: 'cyan', staffCount: 3 },
-  { id: 'AC', name: 'แผนกเครื่องปรับอากาศ', description: 'บำรุงรักษาและซ่อมแอร์', icon: '❄️', color: 'sky', staffCount: 4 },
-  { id: 'MECH', name: 'แผนกเครื่องกล', description: 'ซ่อมแซมเครื่องจักรและอุปกรณ์', icon: '⚙️', color: 'gray', staffCount: 4 },
-  { id: 'IT', name: 'แผนก IT', description: 'ซ่อมคอมพิวเตอร์และระบบเครือข่าย', icon: '💻', color: 'purple', staffCount: 3 }
+  { id: 'ELEC', name: 'ช่างไฟฟ้า', description: 'ติดตั้งและซ่อมแซมระบบไฟฟ้า', icon: 'Zap', color: 'blue', staffCount: 5 },
+  { id: 'PLUMB', name: 'ช่างประปา', description: 'ซ่อมแซมระบบประปาและสุขภัณฑ์', icon: 'Droplet', color: 'cyan', staffCount: 3 },
+  { id: 'AC', name: 'ช่างเครื่องปรับอากาศ', description: 'บำรุงรักษาและซ่อมแอร์', icon: 'Wind', color: 'sky', staffCount: 4 },
+  { id: 'MECH', name: 'ช่างเครื่องกล', description: 'ซ่อมแซมเครื่องจักรและอุปกรณ์', icon: 'Settings', color: 'gray', staffCount: 4 },
+  { id: 'IT', name: 'ช่าง IT', description: 'ซ่อมคอมพิวเตอร์และระบบเครือข่าย', icon: 'Laptop', color: 'purple', staffCount: 3 }
 ];
 
 // Helper: Logic สร้างรหัสงานอัตโนมัติ (J001, J002, ...)
@@ -34,14 +43,16 @@ const generateNewJobId = (currentJobs) => {
 // ----------------------------------------------------------------
 // Component Logic
 // ----------------------------------------------------------------
-function JobManagement({ jobs = sampleJobs, setJobs }) {
+function JobManagement({ jobs = sampleJobs, setJobs, addActivity }) {
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [filterDepartment, setFilterDepartment] = useState('ทั้งหมด');
   const [filterPriority, setFilterPriority] = useState('ทั้งหมด');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [jobToAssign, setJobToAssign] = useState(null);
+  const [jobToEdit, setJobToEdit] = useState(null);
   const [newJobId, setNewJobId] = useState(''); // ID อัตโนมัติ
 
   const [formData, setFormData] = useState({
@@ -52,6 +63,22 @@ function JobManagement({ jobs = sampleJobs, setJobs }) {
   const onChangeForm = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // ========================================
+  // ฟังก์ชันแสดง Icon ของแผนก
+  // แปลงชื่อ icon จาก string เป็น React Component
+  // ========================================
+  const renderDepartmentIcon = (iconName) => {
+    const iconProps = { size: 24 };
+    switch(iconName) {
+      case 'Zap': return <Zap {...iconProps} />;
+      case 'Droplet': return <Droplet {...iconProps} />;
+      case 'Wind': return <Wind {...iconProps} />;
+      case 'Settings': return <Settings {...iconProps} />;
+      case 'Laptop': return <Laptop {...iconProps} />;
+      default: return <span>{iconName}</span>;
+    }
   };
 
   // --- Handlers ---
@@ -77,13 +104,14 @@ function JobManagement({ jobs = sampleJobs, setJobs }) {
       location: formData.location || "ไม่ระบุ",
       status: "รอดำเนินการ",
       priority: formData.priority,
-      jobType: formData.jobType || "",
+      jobType: formData.jobType || "ไม่ระบุ",
       detail: formData.detail || "",
       customerName: formData.customerName || "",
       phone: formData.phone || "",
       email: formData.email || "",
       note: formData.note || "",
       updatedAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
+      createdAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
       creator: 'Admin'
     };
 
@@ -91,6 +119,92 @@ function JobManagement({ jobs = sampleJobs, setJobs }) {
       setJobs(prevJobs => [newJob, ...prevJobs]);
     }
     setShowCreateModal(false);
+  };
+
+  const handleEditJob = (job) => {
+    setJobToEdit(job);
+    setFormData({
+      jobName: job.name || "",
+      priority: job.priority || "ปานกลาง",
+      jobType: job.jobType || "",
+      date: job.date || "",
+      location: job.location || "",
+      customerName: job.customerName || "",
+      phone: job.phone || "",
+      email: job.email || "",
+      detail: job.detail || "",
+      note: job.note || "",
+    });
+    setShowEditModal(true);
+  };
+
+  const saveEditJob = () => {
+    if (!formData.jobName) {
+      alert("กรุณากรอก ชื่องาน");
+      return;
+    }
+
+    // เตือนถ้างานถูกมอบหมายไปแล้ว
+    if (jobToEdit.department && jobToEdit.department !== 'ยังไม่มอบหมายแผนก') {
+      const confirmEdit = window.confirm(
+        `งานนี้ถูกส่งไปยังแผนก "${jobToEdit.department}" แล้ว\n` +
+        `การแก้ไขจะส่งผลต่อข้อมูลที่แผนกและช่างเห็นอยู่\n\n` +
+        `ต้องการดำเนินการต่อหรือไม่?`
+      );
+      if (!confirmEdit) return;
+    }
+
+    if (setJobs) {
+      const updatedJobs = setJobs(prevJobs => prevJobs.map(job => {
+        if (job.id === jobToEdit.id) {
+          return {
+            ...job,
+            name: formData.jobName,
+            priority: formData.priority,
+            jobType: formData.jobType || "ไม่ระบุ",
+            date: formData.date || job.date,
+            location: formData.location || "ไม่ระบุ",
+            customerName: formData.customerName || "",
+            phone: formData.phone || "",
+            email: formData.email || "",
+            detail: formData.detail || "",
+            note: formData.note || "",
+            updatedAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
+          };
+        }
+        return job;
+      }));
+
+      // บังคับ sync ข้อมูลไปยัง localStorage ทันที
+      const currentJobs = JSON.parse(localStorage.getItem('jobsData') || '[]');
+      const syncedJobs = currentJobs.map(job => {
+        if (job.id === jobToEdit.id) {
+          return {
+            ...job,
+            name: formData.jobName,
+            priority: formData.priority,
+            jobType: formData.jobType || "ไม่ระบุ",
+            date: formData.date || job.date,
+            location: formData.location || "ไม่ระบุ",
+            customerName: formData.customerName || "",
+            phone: formData.phone || "",
+            email: formData.email || "",
+            detail: formData.detail || "",
+            note: formData.note || "",
+            updatedAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
+          };
+        }
+        return job;
+      });
+      localStorage.setItem('jobsData', JSON.stringify(syncedJobs));
+
+      // Trigger storage event เพื่อให้ tab อื่นๆ อัพเดท
+      window.dispatchEvent(new Event('storage'));
+    }
+
+    alert(`✅ แก้ไขงาน ${jobToEdit.id} เรียบร้อยแล้ว${jobToEdit.department !== 'ยังไม่มอบหมายแผนก' ? '\nข้อมูลได้ถูกส่งไปยังแผนกและช่างแล้ว' : ''}`);
+    setShowEditModal(false);
+    setJobToEdit(null);
   };
 
   const handleDeleteJob = (jobId) => {
@@ -105,6 +219,7 @@ function JobManagement({ jobs = sampleJobs, setJobs }) {
 
   const handleAssignJob = (jobId, departmentName) => {
     console.log('🔍 handleAssignJob called:', { jobId, departmentName });
+    const job = jobs.find(j => j.id === jobId);
     if (setJobs) {
       setJobs(prevJobs => {
         const updatedJobs = prevJobs.map(job => {
@@ -121,6 +236,23 @@ function JobManagement({ jobs = sampleJobs, setJobs }) {
         });
         console.log('✅ Updated jobs:', updatedJobs.find(j => j.id === jobId));
         return updatedJobs;
+      });
+    }
+    // ========================================
+    // บันทึกประวัติกิจกรรม: มอบหมายงานให้แผนก
+    // เมื่อ Admin เลือกแผนกสำหรับงาน
+    // - เปลี่ยนสถานะงานเป็น "รอดำเนินการ"
+    // - กำหนดแผนก และรอหัวหน้าช่างมอบหมายช่าง
+    // - บันทึกประวัติกิจกรรมพร้อมไอคอน ClipboardCheck (📋✓)
+    // ========================================
+    if (job && addActivity) {
+      addActivity({
+        type: 'assign_department',
+        jobId: jobId,
+        jobName: job.name,
+        message: `Admin มอบหมายงาน ${jobId} ให้แผนก ${departmentName}`,
+        department: departmentName,
+        icon: 'ClipboardCheck' // ไอคอน: คลิปบอร์ดที่มีเครื่องหมายถูก
       });
     }
     setShowAssignModal(false);
@@ -140,25 +272,12 @@ function JobManagement({ jobs = sampleJobs, setJobs }) {
 
   const getStatusLabel = (status) => status;
 
-  // Helper function for priority badge
-  const getPriorityClass = (priority) => {
-    switch(priority) {
-      case 'ด่วนมาก': return 'priority-badge priority-urgent';
-      case 'สูง': return 'priority-badge priority-high';
-      case 'ปานกลาง': return 'priority-badge priority-medium';
-      case 'ต่ำ': return 'priority-badge priority-low';
-      default: return 'priority-badge';
-    }
-  };
-
-  // ตัวเลือกแผนกสำหรับ Dropdown
+  // ตัวเลือกแผนกแบบคงที่
   const departmentOptions = [
     'ทั้งหมด',
+    'ยังไม่มอบหมาย',
     'แผนกไฟฟ้า',
-    'ผู้ใช้ที่มอบหมายแผนก',
-    'ยังไม่ได้รับงาน',
     'แผนกประปา',
-    'แผนกเครื่องปรับอากาศ',
     'แผนกโครงสร้าง',
     'แผนก IT'
   ];
@@ -173,29 +292,19 @@ function JobManagement({ jobs = sampleJobs, setJobs }) {
         (statusFilter === "completed" && (status === "เสร็จสิ้น" || status === "ผ่านการตรวจสอบ")) ||
         (statusFilter === "review" && status === "รอตรวจสอบ");
       const matchSearch = job.name.toLowerCase().includes(searchText.toLowerCase()) || job.id.toLowerCase().includes(searchText.toLowerCase());
-      
-      // ปรับการกรองแผนกตามตัวเลือกใหม่
-      let matchDept = true;
-      if (filterDepartment === 'ทั้งหมด') {
-        matchDept = true;
-      } else if (filterDepartment === 'ยังไม่ได้รับงาน') {
-        matchDept = !job.department || job.department === 'ยังไม่มอบหมายแผนก';
-      } else if (filterDepartment === 'ผู้ใช้ที่มอบหมายแผนก') {
-        matchDept = job.department && job.department !== 'ยังไม่มอบหมายแผนก' && (!job.technician || job.technician === 'ไม่มีช่าง');
-            } else {
-                // รองรับทั้งชื่อเก่า (ช่างไฟฟ้า) และชื่อใหม่ (แผนกไฟฟ้า)
-                const deptMapping = {
-                    'แผนกไฟฟ้า': ['ช่างไฟฟ้า', 'แผนกไฟฟ้า'],
-                    'แผนกประปา': ['ช่างประปา', 'แผนกประปา'],
-                    'แผนกเครื่องปรับอากาศ': ['ช่างเครื่องปรับอากาศ', 'แผนกเครื่องปรับอากาศ'],
-                    'แผนกโครงสร้าง': ['ช่างโครงสร้าง', 'แผนกโครงสร้าง'],
-                    'แผนก IT': ['ช่าง IT', 'แผนก IT']
-                };
-                const matchNames = deptMapping[filterDepartment] || [filterDepartment];
-                matchDept = matchNames.includes(job.department);
-            }      const matchPriority = filterPriority === 'ทั้งหมด' || job.priority === filterPriority;
+      const matchDept = filterDepartment === 'ทั้งหมด' || 
+                        (filterDepartment === 'ยังไม่มอบหมาย' ? (!job.department || job.department === '') : job.department === filterDepartment);
+      const matchPriority = filterPriority === 'ทั้งหมด' || job.priority === filterPriority;
       return matchStatus && matchSearch && matchDept && matchPriority;
-    }).sort((a, b) => new Date(b.date) - new Date(a.date));
+    }).sort((a, b) => {
+      // งานที่ยังไม่มอบหมายแผนก อยู่บนสุด
+      const aUnassigned = !a.department || a.department === '';
+      const bUnassigned = !b.department || b.department === '';
+      if (aUnassigned && !bUnassigned) return -1;
+      if (!aUnassigned && bUnassigned) return 1;
+      // จัดเรียงตามวันที่
+      return new Date(b.date) - new Date(a.date);
+    });
   }, [jobs, searchText, statusFilter, filterDepartment, filterPriority]);
 
   // --- Counts ---
@@ -285,7 +394,6 @@ function JobManagement({ jobs = sampleJobs, setJobs }) {
                 <th>ชื่องาน</th>
                 <th>แผนก</th>
                 <th>สถานะ</th>
-                <th>ความสำคัญ</th>
                 <th>สถานที่</th>
                 <th>วันที่</th>
                 <th>จัดการ</th>
@@ -302,11 +410,6 @@ function JobManagement({ jobs = sampleJobs, setJobs }) {
                       {getStatusLabel(job.status)}
                     </span>
                   </td>
-                  <td>
-                    <span className={getPriorityClass(job.priority)}>
-                      {job.priority || 'ปานกลาง'}
-                    </span>
-                  </td>
                   <td>{job.location || 'ไม่ระบุ'}</td>
                   <td>{job.date}</td>
                   <td>
@@ -318,7 +421,7 @@ function JobManagement({ jobs = sampleJobs, setJobs }) {
                           <ClipboardList size={16} />มอบหมาย
                         </button>
                       )}
-                      <button className="edit-btn">
+                      <button className="edit-btn" onClick={() => handleEditJob(job)}>
                         <Edit size={16} />แก้ไข
                       </button>
                       <button className="delete-btn" onClick={() => handleDeleteJob(job.id)}>
@@ -362,11 +465,11 @@ function JobManagement({ jobs = sampleJobs, setJobs }) {
                   <label>ประเภทงาน</label>
                   <select name="jobType" value={formData.jobType} onChange={onChangeForm}>
                     <option value="">เลือกประเภทงาน</option>
-                    <option value="ซ่อมบำรุง">ซ่อมบำรุง</option>
-                    <option value="ติดตั้ง">ติดตั้ง</option>
-                    <option value="ตรวจสอบ">ตรวจสอบ</option>
-                    <option value="เปลี่ยนอะไหล่">เปลี่ยนอะไหล่</option>
-                    <option value="อื่นๆ">อื่นๆ</option>
+                    <option>ซ่อมบำรุง</option>
+                    <option>ติดตั้ง</option>
+                    <option>ตรวจสอบ</option>
+                    <option>เปลี่ยนอะไหล่</option>
+                    <option>อื่นๆ</option>
                   </select>
                 </div>
               </div>
@@ -391,6 +494,58 @@ function JobManagement({ jobs = sampleJobs, setJobs }) {
         </div>
       )}
 
+      {/* ---------------- Modal Edit Job ---------------- */}
+      {showEditModal && jobToEdit && (
+        <div className="modal-backdrop">
+          <div className="modal-container">
+            <X className="modal-close" onClick={() => setShowEditModal(false)} size={24} />
+            <div className="modal-header">✏️ แก้ไขใบงาน {jobToEdit.id}</div>
+            <div className="modal-body-content">
+              <h3>ข้อมูลงาน 🛠️</h3>
+              <div className="form-row">
+                <div className="form-group"><label>ชื่องาน <span className="required">*</span></label><input name="jobName" value={formData.jobName} onChange={onChangeForm} placeholder="ชื่อเรียกงานสั้นๆ" /></div>
+                <div className="form-group"><label>รหัสงาน</label><input type="text" value={jobToEdit.id} readOnly disabled className="read-only-input" /></div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>ความสำคัญ</label>
+                  <select name="priority" value={formData.priority} onChange={onChangeForm}>
+                    {['ด่วนมาก', 'สูง', 'ปานกลาง', 'ต่ำ'].map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>ประเภทงาน</label>
+                  <select name="jobType" value={formData.jobType} onChange={onChangeForm}>
+                    <option value="">เลือกประเภทงาน</option>
+                    <option>ซ่อมบำรุง</option>
+                    <option>ติดตั้ง</option>
+                    <option>ตรวจสอบ</option>
+                    <option>เปลี่ยนอะไหล่</option>
+                    <option>อื่นๆ</option>
+                  </select>
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group"><label>วันที่แจ้ง</label><input type="date" name="date" value={formData.date} onChange={onChangeForm} /></div>
+                <div className="form-group"><label>สถานที่</label><input name="location" value={formData.location} onChange={onChangeForm} placeholder="อาคาร/ชั้น/ห้อง" /></div>
+              </div>
+              <div className="form-group full"><label>รายละเอียดงาน</label><textarea name="detail" value={formData.detail} onChange={onChangeForm} rows="3" placeholder="อธิบายปัญหาหรือรายละเอียดงานที่ต้องทำอย่างละเอียด"></textarea></div>
+              <hr className="modal-divider" />
+              <h3>ข้อมูลผู้ติดต่อ 👤</h3>
+              <div className="form-row">
+                <div className="form-group"><label>ชื่อผู้ติดต่อ</label><input name="customerName" value={formData.customerName} onChange={onChangeForm} /></div>
+                <div className="form-group"><label>เบอร์โทร</label><input name="phone" value={formData.phone} onChange={onChangeForm} /></div>
+                <div className="form-group"><label>อีเมล</label><input name="email" value={formData.email} onChange={onChangeForm} /></div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="cancel-btn" onClick={() => setShowEditModal(false)}>ยกเลิก</button>
+              <button className="submit-btn" onClick={saveEditJob}>บันทึกการแก้ไข</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ---------------- Modal Assign Job ---------------- */}
       {showAssignModal && jobToAssign && (
         <div className="modal-backdrop">
@@ -401,7 +556,9 @@ function JobManagement({ jobs = sampleJobs, setJobs }) {
             <div className="department-list">
               {departmentList.map(dept => (
                 <div key={dept.id} className="dept-card">
-                  <div className={`dept-icon ${dept.color}`}>{dept.icon}</div>
+                  <div className={`dept-icon ${dept.color}`}>
+                    {renderDepartmentIcon(dept.icon)}
+                  </div>
                   <div className="dept-info">
                     <div className="dept-name">{dept.name}</div>
                     <div className="dept-description">{dept.description}</div>
