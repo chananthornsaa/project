@@ -61,8 +61,8 @@ export default function Login() {
 
                     if (formattedRole) {
                          setTimeout(() => {
-                            // ส่ง userRole ไปยังหน้า Dashboard
-                            navigate('/dashboard', { state: { userRole: formattedRole } });
+                            // ส่ง userRole แลา username ไปยังหน้า Dashboard
+                            navigate('/dashboard', { state: { userRole: formattedRole, username: formData.username } });
                          }, 1000); 
                     }
 

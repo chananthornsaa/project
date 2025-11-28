@@ -149,25 +149,79 @@ const Checkwork = ({ pendingJobs = [], approveJob, rejectJob, jobs = [], setJobs
                                 </div>
 
                                 <div style={{ marginBottom: '24px', lineHeight: '1.8', color: '#374151' }}>
-                                    <p><strong>ช่างผู้ดำเนินการ:</strong> {job.technician}</p>
-                                    <p><strong>แผนก:</strong> {job.department}</p>
-                                    {job.comment && <p><strong>รายละเอียดจากช่าง:</strong> {job.comment}</p>}
+                                    <div style={{ background: '#f9fafb', padding: '16px', borderRadius: '12px', marginBottom: '16px' }}>
+                                        <p><strong>ช่างผู้ดำเนินการ:</strong> {job.technician}</p>
+                                        <p><strong>แผนก:</strong> {job.department}</p>
+                                        <p><strong>ความสำคัญ:</strong> <span style={{ color: job.priority === 'สูง' ? '#dc2626' : job.priority === 'ปานกลาง' ? '#f59e0b' : '#10b981', fontWeight: 'bold' }}>{job.priority || '-'}</span></p>
+                                        <p><strong>ประเภทงาน:</strong> {job.jobType || '-'}</p>
+                                        <p><strong>วันที่รับงาน:</strong> {job.date || '-'}</p>
+                                        <p><strong>สถานที่:</strong> {job.location || '-'}</p>
+                                    </div>
+                                    {job.detail && (
+                                        <div style={{ marginBottom: '16px', padding: '16px', background: '#eff6ff', borderRadius: '12px', border: '1px solid #bfdbfe' }}>
+                                            <p style={{ margin: 0, fontWeight: 'bold', color: '#1e40af', marginBottom: '8px' }}>📋 รายละเอียดงาน:</p>
+                                            <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{job.detail}</p>
+                                        </div>
+                                    )}
+                                    {(job.customerName || job.phone || job.email) && (
+                                        <div style={{ marginBottom: '16px', padding: '16px', background: '#fef3c7', borderRadius: '12px', border: '1px solid #fde68a' }}>
+                                            <p style={{ margin: 0, fontWeight: 'bold', color: '#92400e', marginBottom: '8px' }}>👤 ข้อมูลผู้ติดต่อ:</p>
+                                            {job.customerName && <p style={{ margin: '4px 0' }}><strong>ชื่อ:</strong> {job.customerName}</p>}
+                                            {job.phone && <p style={{ margin: '4px 0' }}><strong>เบอร์โทร:</strong> {job.phone}</p>}
+                                            {job.email && <p style={{ margin: '4px 0' }}><strong>อีเมล:</strong> {job.email}</p>}
+                                        </div>
+                                    )}
+                                    {job.note && (
+                                        <div style={{ marginBottom: '16px', padding: '16px', background: '#fef9e7', borderRadius: '12px', borderLeft: '4px solid #f59e0b' }}>
+                                            <p style={{ margin: 0, fontWeight: 'bold', color: '#92400e', marginBottom: '8px' }}>📝 หมายเหตุ:</p>
+                                            <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{job.note}</p>
+                                        </div>
+                                    )}
+                                    {job.technicianReport && (
+                                        <div style={{ marginTop: '12px', padding: '16px', background: '#f0fdf4', borderLeft: '4px solid #10b981', borderRadius: '12px' }}>
+                                            <p style={{ margin: 0, fontWeight: 'bold', color: '#065f46', marginBottom: '8px' }}>✅ รายงานจากช่าง:</p>
+                                            <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{job.technicianReport}</p>
+                                        </div>
+                                    )}
                                 </div>
 
+                                {/* แสดงรูปที่ช่างอัพโหลด */}
+                                {job.reportImages && job.reportImages.length > 0 && (
+                                    <div style={{ margin: '20px 0' }}>
+                                        <p style={{ fontWeight: 'bold', marginBottom: '12px', color: '#1f2937' }}>📸 รูปภาพจากช่าง ({job.reportImages.length})</p>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px', maxWidth: '600px' }}>
+                                            {job.reportImages.map((url, i) => (
+                                                <div key={i} style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', cursor: 'pointer' }} onClick={() => window.open(url, '_blank')}>
+                                                    <img 
+                                                        src={url} 
+                                                        alt={`รูปที่ ${i + 1}`} 
+                                                        crossOrigin="anonymous"
+                                                        style={{ width: '100%', height: '120px', objectFit: 'cover' }} 
+                                                    />
+                                                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.7))', color: 'white', padding: '12px 4px 4px', fontSize: '10px', textAlign: 'center', fontWeight: 'bold' }}>
+                                                        รูปที่ {i + 1}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* รูปตัวอย่างเก่า (ถ้ามี) */}
                                 {imageCount > 0 && (
                                     <div style={{ margin: '20px 0' }}>
                                         <p style={{ fontWeight: 'bold', marginBottom: '12px', color: '#1f2937' }}>รูปที่ช่างส่งมา</p>
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px', maxWidth: '600px' }}>
                                             {imageUrls.map((url, i) => (
-                                                <div key={i} style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', aspectRatio: '1 / 1' }}>
+                                                <div key={i} style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', cursor: 'pointer' }} onClick={() => window.open(url, '_blank')}>
                                                     {/* crossOrigin="anonymous" สำคัญมากสำหรับการโหลดรูปไปทำ PDF */}
                                                     <img 
                                                         src={url} 
                                                         alt={`รูปที่ ${i + 1}`} 
                                                         crossOrigin="anonymous"
-                                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                                        style={{ width: '100%', height: '120px', objectFit: 'cover' }} 
                                                     />
-                                                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.7))', color: 'white', padding: '16px 8px 8px', fontSize: '12px', textAlign: 'center', fontWeight: 'bold' }}>
+                                                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.7))', color: 'white', padding: '12px 4px 4px', fontSize: '10px', textAlign: 'center', fontWeight: 'bold' }}>
                                                         รูปที่ {i + 1}
                                                     </div>
                                                 </div>

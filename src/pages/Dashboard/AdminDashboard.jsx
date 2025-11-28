@@ -3,7 +3,10 @@
 // (UPDATED: กู้คืน Job Per Page Selector และ Pagination Logic)
 // ========================================
 import React, { useState, useMemo, useEffect } from 'react'; // ADDED useEffect
-import { Search, Filter, Clock, Briefcase, PlusSquare, AlertTriangle } from 'lucide-react';
+import { 
+  Search, Filter, Clock, Briefcase, PlusSquare, AlertTriangle,
+  CheckCircle, RotateCcw, FileText, ClipboardCheck // เพิ่ม Icons สำหรับ Activity Log
+} from 'lucide-react';
 import mockData from '../../data/Techsample.jsx';
 const { sampleJobs, ACTIVITIES } = mockData;
 
@@ -30,16 +33,15 @@ const getPriorityClass = (priority) => {
 
 const getStatusClass = (status) => {
     switch(status) {
-      case 'รออนุมัติ': return 'status-badge status-unassigned';
       case 'รอดำเนินการ': return 'status-badge status-pending';
-      case 'กำลังทำ': return 'status-badge status-in-progress';
+      case 'กำลังดำเนินการ': return 'status-badge status-in-progress';
       case 'รอตรวจสอบ': return 'status-badge status-review';
       case 'เสร็จสิ้น': return 'status-badge status-completed';
       default: return 'status-badge';
     }
 };
 
-function AdminDashboard({ handlePageChange }) {
+function AdminDashboard({ jobs = sampleJobs, handlePageChange, activityLog = [] }) {
     const [searchText, setSearchText] = useState('');
     const [filterStatus, setFilterStatus] = useState('ทั้งหมด');
     const [filterDepartment, setFilterDepartment] = useState('ทั้งหมด');
@@ -47,23 +49,103 @@ function AdminDashboard({ handlePageChange }) {
     // RESTORED STATE
     const [jobsPerPage, setJobsPerPage] = useState(5);
     const [currentPageIndex, setCurrentPageIndex] = useState(1);
+    const [liveActivityLog, setLiveActivityLog] = useState(activityLog);
+
+    // Real-time sync - อัพเดท activityLog จาก localStorage
+    useEffect(() => {
+        setLiveActivityLog(activityLog);
+    }, [activityLog]);
+
+    // ฟังการเปลี่ยนแปลงจาก localStorage (cross-tab sync)
+    useEffect(() => {
+        const handleStorageChange = (e) => {
+            if (e.key === 'activityLog' && e.newValue) {
+                setLiveActivityLog(JSON.parse(e.newValue));
+            }
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
+
+    // Reload เมื่อ focus กลับมาที่ tab
+    useEffect(() => {
+        const reloadActivityLog = () => {
+            const saved = localStorage.getItem('activityLog');
+            if (saved) {
+                setLiveActivityLog(JSON.parse(saved));
+            }
+        };
+        window.addEventListener('focus', reloadActivityLog);
+        return () => window.removeEventListener('focus', reloadActivityLog);
+    }, []);
 
     // Logic กรองและเรียงลำดับ
-    const uniqueDepartments = useMemo(() => ['ทั้งหมด', ...new Set(sampleJobs.map(j => j.department).filter(Boolean))], []);
+    const departmentOptions = [
+        'ทั้งหมด',
+        'แผนกไฟฟ้า',
+        'ผู้ใช้ที่มอบหมายแผนก',
+        'ยังไม่ได้รับงาน',
+        'แผนกประปา',
+        'แผนกเครื่องปรับอากาศ',
+        'แผนกโครงสร้าง',
+        'แผนก IT'
+    ];
     
     const filteredJobs = useMemo(() => {
-        let jobs = sampleJobs.filter(job => {
+        let filteredList = jobs.filter(job => {
             const matchSearch = job.name.toLowerCase().includes(searchText.toLowerCase()) || job.id.toLowerCase().includes(searchText.toLowerCase());
             const matchStatus = filterStatus === 'ทั้งหมด' || job.status === filterStatus;
-            const matchDept = filterDepartment === 'ทั้งหมด' || job.department === filterDepartment;
+            
+            // ปรับการกรองแผนกตามตัวเลือกใหม่
+            let matchDept = true;
+            if (filterDepartment === 'ทั้งหมด') {
+                matchDept = true;
+            } else if (filterDepartment === 'ยังไม่ได้รับงาน') {
+                matchDept = !job.department || job.department === 'ยังไม่มอบหมายแผนก';
+            } else if (filterDepartment === 'ผู้ใช้ที่มอบหมายแผนก') {
+                matchDept = job.department && job.department !== 'ยังไม่มอบหมายแผนก' && (!job.technician || job.technician === 'ไม่มีช่าง');
+            } else {
+                // รองรับทั้งชื่อเก่า (ช่างไฟฟ้า) และชื่อใหม่ (แผนกไฟฟ้า)
+                const deptMapping = {
+                    'แผนกไฟฟ้า': ['ช่างไฟฟ้า', 'แผนกไฟฟ้า'],
+                    'แผนกประปา': ['ช่างประปา', 'แผนกประปา'],
+                    'แผนกเครื่องปรับอากาศ': ['ช่างเครื่องปรับอากาศ', 'แผนกเครื่องปรับอากาศ'],
+                    'แผนกโครงสร้าง': ['ช่างโครงสร้าง', 'แผนกโครงสร้าง'],
+                    'แผนก IT': ['ช่าง IT', 'แผนก IT']
+                };
+                const matchNames = deptMapping[filterDepartment] || [filterDepartment];
+                matchDept = matchNames.includes(job.department);
+            }
+            
             const matchPriority = filterPriority === 'ทั้งหมด' || job.priority === filterPriority;
             return matchSearch && matchStatus && matchDept && matchPriority;
         });
-        return jobs.sort((a, b) => (priorityOrder[a.priority] || 5) - (priorityOrder[b.priority] || 5));
-    }, [searchText, filterStatus, filterDepartment, filterPriority]);
+        return filteredList.sort((a, b) => (priorityOrder[a.priority] || 5) - (priorityOrder[b.priority] || 5));
+    }, [searchText, filterStatus, filterDepartment, filterPriority, jobs]);
 
-    const countByStatus = (status) => sampleJobs.filter(j => j.status === status).length;
-    const activityLog = ACTIVITIES.slice(0, 5);
+    const countByStatus = (status) => jobs.filter(j => j.status === status).length;
+    
+    // แสดงกิจกรรมล่าสุด 5 รายการ
+    const recentActivities = liveActivityLog.slice(0, 5);
+
+    // ========================================
+    // ฟังก์ชันแสดงไอคอนสำหรับ Activity Log
+    // แปลงชื่อ icon จาก string เป็น React Component
+    // - CheckCircle: อนุมัติงาน (✓)
+    // - RotateCcw: ตีกลับงาน (↻)
+    // - FileText: มอบหมายงานให้ช่าง (📄)
+    // - ClipboardCheck: มอบหมายงานให้แผนก (📋)
+    // ========================================
+    const renderActivityIcon = (iconName) => {
+        const iconProps = { size: 16, style: { marginRight: '6px' } };
+        switch(iconName) {
+            case 'CheckCircle': return <CheckCircle {...iconProps} color="#10b981" />;
+            case 'RotateCcw': return <RotateCcw {...iconProps} color="#f59e0b" />;
+            case 'FileText': return <FileText {...iconProps} color="#3b82f6" />;
+            case 'ClipboardCheck': return <ClipboardCheck {...iconProps} color="#8b5cf6" />;
+            default: return <span style={{ marginRight: '6px' }}>{iconName}</span>; // fallback สำหรับ emoji เก่า
+        }
+    };
 
     // RESTORED PAGINATION LOGIC
     const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
@@ -86,10 +168,9 @@ function AdminDashboard({ handlePageChange }) {
         <>
             {/* 1. Cards */}
             <div className="status-cards">
-                <div className="card"><div className="card-label">งานทั้งหมด</div><div className="card-number">{sampleJobs.length}</div></div>
-                <div className="card"><div className="card-label">รออนุมัติ</div><div className="card-number blue">{countByStatus('รออนุมัติ')}</div></div>
+                <div className="card"><div className="card-label">งานทั้งหมด</div><div className="card-number">{jobs.length}</div></div>
                 <div className="card"><div className="card-label">รอดำเนินการ</div><div className="card-number orange">{countByStatus('รอดำเนินการ')}</div></div>
-                <div className="card"><div className="card-label">กำลังทำ</div><div className="card-number blue">{countByStatus('กำลังทำ')}</div></div>
+                <div className="card"><div className="card-label">กำลังดำเนินการ</div><div className="card-number blue">{countByStatus('กำลังดำเนินการ')}</div></div>
                 <div className="card highlight"><div className="card-label">รอตรวจสอบ ⭐</div><div className="card-number yellow">{countByStatus('รอตรวจสอบ')}</div></div>
             </div>
 
@@ -99,8 +180,8 @@ function AdminDashboard({ handlePageChange }) {
                     <Search className="search-icon" size={20} />
                     <input type="text" placeholder="ค้นหางาน..." value={searchText} onChange={e => setSearchText(e.target.value)} className="search-input" />
                 </div>
-                <div className="filter-container"><Filter size={20} /><select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="filter-select"><option>ทั้งหมด</option><option>รออนุมัติ</option><option>รอดำเนินการ</option><option>กำลังทำ</option><option>รอตรวจสอบ</option></select></div>
-                <div className="filter-container"><Briefcase size={20} /><select value={filterDepartment} onChange={e => setFilterDepartment(e.target.value)} className="filter-select">{uniqueDepartments.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
+                <div className="filter-container"><Filter size={20} /><select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="filter-select"><option>ทั้งหมด</option><option>รอดำเนินการ</option><option>กำลังดำเนินการ</option><option>รอตรวจสอบ</option></select></div>
+                <div className="filter-container"><Briefcase size={20} /><select value={filterDepartment} onChange={e => setFilterDepartment(e.target.value)} className="filter-select">{departmentOptions.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
                 <div className="filter-container"><AlertTriangle size={20} /><select value={filterPriority} onChange={e => setFilterPriority(e.target.value)} className="filter-select"><option>ทั้งหมด</option><option>ด่วนมาก</option><option>สูง</option><option>ปานกลาง</option><option>ต่ำ</option></select></div>
             </div>
 
@@ -134,7 +215,7 @@ function AdminDashboard({ handlePageChange }) {
                             <tr key={job.id}>
                                 <td>{job.id}</td>
                                 <td className="job-name">{job.name}</td>
-                                <td><span className="dept-badge">{job.department}</span></td>
+                                <td><span className="dept-badge">{job.department || 'ยังไม่มอบหมายแผนก'}</span></td>
                                 <td><span className={getPriorityClass(job.priority)}>{job.priority}</span></td>
                                 <td><span className={getStatusClass(job.status)}>{job.status}</span></td>
                                 <td>{formatDateTime(job.updatedAt)}</td>
@@ -157,7 +238,28 @@ function AdminDashboard({ handlePageChange }) {
             <div className="dashboard-bottom-row">
                 <div className="activity-log-box">
                     <div className="activity-log-title"><Clock size={18} style={{marginRight:'8px'}}/> บันทึกกิจกรรมล่าสุด</div>
-                    <div className="activity-list">{activityLog.map(act => (<div key={act.id} className="activity-item"><span>{act.text}</span><span className="activity-timestamp">...</span></div>))}</div>
+                    <div className="activity-list">
+                        {recentActivities.length > 0 ? (
+                            recentActivities.map(act => (
+                                <div key={act.id} className="activity-item">
+                                    <span>
+                                        {renderActivityIcon(act.icon)}
+                                        {act.message}
+                                    </span>
+                                    <span className="activity-timestamp">{new Date(act.timestamp).toLocaleString('th-TH', { 
+                                        month: 'short', 
+                                        day: 'numeric', 
+                                        hour: '2-digit', 
+                                        minute: '2-digit' 
+                                    })}</span>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="activity-item" style={{ color: '#9ca3af', fontStyle: 'italic' }}>
+                                <span>ยังไม่มีกิจกรรม</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </>
