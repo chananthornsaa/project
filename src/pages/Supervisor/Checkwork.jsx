@@ -7,7 +7,7 @@ import { CheckSquare, Download, Send, UserX, CheckCircle } from 'lucide-react';
 import jsPDF from "jspdf";
 import html2canvas from 'html2canvas';
 
-const MY_DEPARTMENT = 'ช่างไฟฟ้า';
+const MY_DEPARTMENT = 'แผนกไฟฟ้า';
 
 const Checkwork = ({ pendingJobs = [], approveJob, rejectJob, jobs = [], setJobs = () => { } }) => {
     const [rejectModalOpen, setRejectModalOpen] = useState(false);
@@ -16,10 +16,12 @@ const Checkwork = ({ pendingJobs = [], approveJob, rejectJob, jobs = [], setJobs
     const [returnToAdminModalOpen, setReturnToAdminModalOpen] = useState(false);
     const [returnToAdminComment, setReturnToAdminComment] = useState('');
 
-    // กรองเฉพาะงานรอตรวจสอบของแผนกเรา
-    const myPendingJobs = pendingJobs.filter(job =>
-        job.department === MY_DEPARTMENT && job.status === 'รอตรวจสอบ'
-    );
+    // กรองเฉพาะงานรอตรวจสอบของแผนกเรา (รองรับทั้งชื่อเก่าและใหม่)
+    const myPendingJobs = pendingJobs.filter(job => {
+        const isMyDepartment = job.department === MY_DEPARTMENT || job.department === 'ช่างไฟฟ้า';
+        const isPending = job.status === 'รอตรวจสอบ';
+        return isMyDepartment && isPending;
+    });
 
     // ==========================================
     // ฟังก์ชันโหลด PDF (รองรับไทย 100%)
@@ -83,13 +85,14 @@ const Checkwork = ({ pendingJobs = [], approveJob, rejectJob, jobs = [], setJobs
         if (!returnToAdminComment.trim()) return alert('กรุณาระบุเหตุผล');
         const updatedJobs = jobs.map(job => {
             if (job.id === selectedJobId) {
-                return { ...job, status: 'รออนุมัติ', technician: null, comment: returnToAdminComment };
+                // เปลี่ยนเป็นเก็บข้อความไว้แต่ไม่ลบงาน ไม่เปลี่ยนสถานะ
+                return { ...job, adminComment: returnToAdminComment, notifiedAdmin: true };
             }
             return job;
         });
         setJobs(updatedJobs);
         setReturnToAdminModalOpen(false);
-        alert(`ส่งงาน ${selectedJobId} กลับให้ Admin แล้ว`);
+        alert(`ส่งข้อความไปยัง Admin สำหรับงาน ${selectedJobId} แล้ว (งานยังคงอยู่)`);
     };
 
     const getImageUrls = (job) => {

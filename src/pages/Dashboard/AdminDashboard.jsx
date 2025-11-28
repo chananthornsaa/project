@@ -5,7 +5,7 @@
 import React, { useState, useMemo, useEffect } from 'react'; // ADDED useEffect
 import { 
   Search, Filter, Clock, Briefcase, PlusSquare, AlertTriangle,
-  CheckCircle, RotateCcw, FileText, ClipboardCheck // เพิ่ม Icons สำหรับ Activity Log
+  CheckCircle, RotateCcw, FileText, ClipboardCheck, X, User, Phone, Mail, MapPin, Calendar, Wrench // เพิ่ม Icons สำหรับ Activity Log และ Modal
 } from 'lucide-react';
 import mockData from '../../data/Techsample.jsx';
 const { sampleJobs, ACTIVITIES } = mockData;
@@ -50,6 +50,8 @@ function AdminDashboard({ jobs = sampleJobs, handlePageChange, activityLog = [] 
     const [jobsPerPage, setJobsPerPage] = useState(5);
     const [currentPageIndex, setCurrentPageIndex] = useState(1);
     const [liveActivityLog, setLiveActivityLog] = useState(activityLog);
+    const [selectedJob, setSelectedJob] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
     // Real-time sync - อัพเดท activityLog จาก localStorage
     useEffect(() => {
@@ -83,10 +85,7 @@ function AdminDashboard({ jobs = sampleJobs, handlePageChange, activityLog = [] 
     const departmentOptions = [
         'ทั้งหมด',
         'แผนกไฟฟ้า',
-        'ผู้ใช้ที่มอบหมายแผนก',
-        'ยังไม่ได้รับงาน',
         'แผนกประปา',
-        'แผนกเครื่องปรับอากาศ',
         'แผนกโครงสร้าง',
         'แผนก IT'
     ];
@@ -100,16 +99,11 @@ function AdminDashboard({ jobs = sampleJobs, handlePageChange, activityLog = [] 
             let matchDept = true;
             if (filterDepartment === 'ทั้งหมด') {
                 matchDept = true;
-            } else if (filterDepartment === 'ยังไม่ได้รับงาน') {
-                matchDept = !job.department || job.department === 'ยังไม่มอบหมายแผนก';
-            } else if (filterDepartment === 'ผู้ใช้ที่มอบหมายแผนก') {
-                matchDept = job.department && job.department !== 'ยังไม่มอบหมายแผนก' && (!job.technician || job.technician === 'ไม่มีช่าง');
             } else {
                 // รองรับทั้งชื่อเก่า (ช่างไฟฟ้า) และชื่อใหม่ (แผนกไฟฟ้า)
                 const deptMapping = {
                     'แผนกไฟฟ้า': ['ช่างไฟฟ้า', 'แผนกไฟฟ้า'],
                     'แผนกประปา': ['ช่างประปา', 'แผนกประปา'],
-                    'แผนกเครื่องปรับอากาศ': ['ช่างเครื่องปรับอากาศ', 'แผนกเครื่องปรับอากาศ'],
                     'แผนกโครงสร้าง': ['ช่างโครงสร้าง', 'แผนกโครงสร้าง'],
                     'แผนก IT': ['ช่าง IT', 'แผนก IT']
                 };
@@ -127,6 +121,17 @@ function AdminDashboard({ jobs = sampleJobs, handlePageChange, activityLog = [] 
     
     // แสดงกิจกรรมล่าสุด 5 รายการ
     const recentActivities = liveActivityLog.slice(0, 5);
+
+    // ฟังก์ชันเปิด Modal ดูรายละเอียด
+    const handleViewDetail = (job) => {
+        setSelectedJob(job);
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setSelectedJob(null);
+    };
 
     // ========================================
     // ฟังก์ชันแสดงไอคอนสำหรับ Activity Log
@@ -215,11 +220,11 @@ function AdminDashboard({ jobs = sampleJobs, handlePageChange, activityLog = [] 
                             <tr key={job.id}>
                                 <td>{job.id}</td>
                                 <td className="job-name">{job.name}</td>
-                                <td><span className="dept-badge">{job.department || 'ยังไม่มอบหมายแผนก'}</span></td>
+                                <td><span className="dept-badge">{job.department || 'แผนกอื่น'}</span></td>
                                 <td><span className={getPriorityClass(job.priority)}>{job.priority}</span></td>
                                 <td><span className={getStatusClass(job.status)}>{job.status}</span></td>
                                 <td>{formatDateTime(job.updatedAt)}</td>
-                                <td><button className="detail-btn">ดูรายละเอียด</button></td>
+                                <td><button className="detail-btn" onClick={() => handleViewDetail(job)}>ดูรายละเอียด</button></td>
                             </tr>
                         ))}
                     </tbody>
@@ -262,6 +267,190 @@ function AdminDashboard({ jobs = sampleJobs, handlePageChange, activityLog = [] 
                     </div>
                 </div>
             </div>
+
+            {/* 5. Modal รายละเอียดงาน */}
+            {showModal && selectedJob && (
+                <div className="modal-backdrop" onClick={handleCloseModal}>
+                    <div className="modal-container" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '700px' }}>
+                        <X className="modal-close" onClick={handleCloseModal} size={24} />
+                        <div className="modal-header" style={{ marginBottom: '20px' }}>
+                            📄 รายละเอียดงาน
+                        </div>
+
+                        <div className="modal-body-content">
+                            {/* ข้อมูลงาน 🛠️ */}
+                            <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#374151', marginBottom: '16px' }}>
+                                ข้อมูลงาน 🛠️
+                            </h3>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>ชื่องาน <span className="required">*</span></label>
+                                    <input
+                                        type="text"
+                                        value={selectedJob.name}
+                                        readOnly
+                                        style={{ background: '#f9fafb', color: '#374151' }}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>รหัสงาน</label>
+                                    <input
+                                        type="text"
+                                        value={selectedJob.id}
+                                        readOnly
+                                        style={{ background: '#f3f4f6', color: '#6b7280' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>ความสำคัญ</label>
+                                    <input
+                                        type="text"
+                                        value={selectedJob.priority || 'ปานกลาง'}
+                                        readOnly
+                                        style={{ background: '#f9fafb', color: '#374151' }}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>ประเภทงาน</label>
+                                    <input
+                                        type="text"
+                                        value={selectedJob.jobType || 'ไม่ระบุ'}
+                                        readOnly
+                                        style={{ background: '#f9fafb', color: '#374151' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>วันที่แจ้ง</label>
+                                    <input
+                                        type="text"
+                                        value={selectedJob.date || selectedJob.createdAt?.split(' ')[0] || 'N/A'}
+                                        readOnly
+                                        style={{ background: '#f9fafb', color: '#374151' }}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>สถานที่</label>
+                                    <input
+                                        type="text"
+                                        value={selectedJob.location || 'ไม่ระบุ'}
+                                        readOnly
+                                        style={{ background: '#f9fafb', color: '#374151' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-group full">
+                                <label>รายละเอียดงาน</label>
+                                <textarea
+                                    value={selectedJob.detail || 'ไม่มีรายละเอียด'}
+                                    readOnly
+                                    rows="3"
+                                    style={{ background: '#f9fafb', color: '#374151' }}
+                                />
+                            </div>
+
+                            <hr className="modal-divider" />
+
+                            {/* ข้อมูลผู้ติดต่อ 👤 */}
+                            <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#374151', marginBottom: '16px' }}>
+                                ข้อมูลผู้ติดต่อ 👤
+                            </h3>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>ชื่อผู้ติดต่อ</label>
+                                    <input
+                                        type="text"
+                                        value={selectedJob.customerName || '-'}
+                                        readOnly
+                                        style={{ background: '#f9fafb', color: '#374151' }}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>เบอร์โทร</label>
+                                    <input
+                                        type="text"
+                                        value={selectedJob.phone || '-'}
+                                        readOnly
+                                        style={{ background: '#f9fafb', color: '#374151' }}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>อีเมล</label>
+                                    <input
+                                        type="text"
+                                        value={selectedJob.email || '-'}
+                                        readOnly
+                                        style={{ background: '#f9fafb', color: '#374151' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <hr className="modal-divider" />
+
+                            {/* สถานะและแผนก */}
+                            <div style={{ 
+                                background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)', 
+                                padding: '16px', 
+                                borderRadius: '10px', 
+                                marginBottom: '16px',
+                                borderLeft: '4px solid #2563eb'
+                            }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', fontSize: '14px' }}>
+                                    <div>
+                                        <span style={{ color: '#6b7280', display: 'block', marginBottom: '6px', fontWeight: '600' }}>สถานะ:</span>
+                                        <span className={getStatusClass(selectedJob.status)} style={{ fontSize: '13px' }}>
+                                            {selectedJob.status}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span style={{ color: '#6b7280', display: 'block', marginBottom: '6px', fontWeight: '600' }}>แผนก:</span>
+                                        <span className="dept-badge" style={{ fontSize: '13px' }}>
+                                            {selectedJob.department || 'แผนกอื่น'}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span style={{ color: '#6b7280', display: 'block', marginBottom: '6px', fontWeight: '600' }}>ช่าง:</span>
+                                        <span style={{ fontWeight: '500', color: '#374151', fontSize: '13px' }}>
+                                            {selectedJob.technician || 'ยังไม่มอบหมาย'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* รายงานจากช่าง */}
+                            {selectedJob.technicianReport && (
+                                <div style={{ 
+                                    background: '#fef3c7', 
+                                    padding: '16px', 
+                                    borderRadius: '10px', 
+                                    border: '1px solid #fde047'
+                                }}>
+                                    <h4 style={{ fontSize: '16px', fontWeight: '600', color: '#92400e', marginBottom: '12px' }}>
+                                        📝 รายงานจากช่าง
+                                    </h4>
+                                    <p style={{ margin: 0, color: '#78350f', fontSize: '14px', lineHeight: '1.6' }}>
+                                        {selectedJob.technicianReport}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="modal-footer">
+                            <button className="cancel-btn" onClick={handleCloseModal}>
+                                ปิด
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

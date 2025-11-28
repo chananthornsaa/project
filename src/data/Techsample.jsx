@@ -80,20 +80,6 @@ const sampleJobs = [
     dueDate: '2024-11-13'
   },
   {
-    id: 'J003',
-    name: 'แก้ไขปลั๊กไฟช็อต ห้องประชุมใหญ่',
-    date: '2024-11-12',
-    technician: 'สมชาย ใจดี',
-    technicianId: 'tech1',
-    creator: 'Admin',
-    status: 'รอตรวจสอบ',
-    department: 'แผนกไฟฟ้า',
-    location: 'ห้องประชุมใหญ่',
-    updatedAt: '2025-11-12 14:30',
-    priority: 'ต่ำ',
-    dueDate: '2024-11-14'
-  },
-  {
     id: 'J004',
     name: 'เดินสายไฟเครื่องจักรใหม่ ไลน์การผลิต B',
     date: '2024-11-13',
@@ -101,7 +87,7 @@ const sampleJobs = [
     technicianId: null,
     creator: 'Admin',
     status: 'รอดำเนินการ',
-    department: 'ยังไม่มอบหมายแผนก',
+    department: '',
     location: 'ไลน์การผลิต B',
     updatedAt: '2025-11-13 10:15',
     priority: 'สูง',
@@ -115,7 +101,7 @@ const sampleJobs = [
     technicianId: null,
     creator: 'Admin',
     status: 'รอดำเนินการ',
-    department: 'ยังไม่มอบหมายแผนก',
+    department: '',
     location: 'ห้องเก็บสารเคมี',
     updatedAt: '2025-11-14 10:00',
     priority: 'ปานกลาง',
@@ -129,7 +115,7 @@ const sampleJobs = [
     technicianId: null,
     creator: 'Admin',
     status: 'รอดำเนินการ',
-    department: 'ยังไม่มอบหมายแผนก',
+    department: '',
     location: 'ทั่วอาคาร',
     updatedAt: '2025-11-15 09:00',
     priority: 'ด่วนมาก',
@@ -139,11 +125,11 @@ const sampleJobs = [
     id: 'J007',
     name: 'เบรกเกอร์ตัดบ่อย โซนห้องเครื่องจักร',
     date: '2024-11-16',
-    technician: 'ไม่มีช่าง',
+    technician: null,
     technicianId: null,
     creator: 'Admin',
     status: 'รอดำเนินการ',
-    department: 'แผนกไฟฟ้า',
+    department: '',
     location: 'ห้องเครื่องจักร',
     updatedAt: '2025-11-16 15:00',
     priority: 'สูง',
@@ -162,20 +148,6 @@ const sampleJobs = [
     updatedAt: '2025-11-18 08:00',
     priority: 'สูง',
     dueDate: '2024-11-20'
-  },
-  {
-    id: 'J009',
-    name: 'ติดตั้งกล้องวงจรปิดเพิ่ม',
-    date: '2024-11-27',
-    technician: 'ไม่มีช่าง',
-    technicianId: null,
-    creator: 'Admin',
-    status: 'รอดำเนินการ',
-    department: 'แผนกไฟฟ้า',
-    location: 'ทางเข้าอาคาร B',
-    updatedAt: '2025-11-27 16:30',
-    priority: 'ปานกลาง',
-    dueDate: '2024-11-29'
   }
 ];
 
