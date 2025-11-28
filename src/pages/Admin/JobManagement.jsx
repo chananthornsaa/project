@@ -16,16 +16,14 @@ import "./JobManagement.css";
 // รายการแผนกต่างๆ พร้อม React Icons
 // - Zap: ไฟฟ้า (⚡)
 // - Droplet: ประปา (💧)
-// - Wind: แอร์/ลม (❄️)
-// - Settings: เครื่องกล (⚙️)
+// - Wrench: โครงสร้าง (🔧)
 // - Laptop: IT/คอมพิวเตอร์ (💻)
 // ========================================
 const departmentList = [
-  { id: 'ELEC', name: 'ช่างไฟฟ้า', description: 'ติดตั้งและซ่อมแซมระบบไฟฟ้า', icon: 'Zap', color: 'blue', staffCount: 5 },
-  { id: 'PLUMB', name: 'ช่างประปา', description: 'ซ่อมแซมระบบประปาและสุขภัณฑ์', icon: 'Droplet', color: 'cyan', staffCount: 3 },
-  { id: 'AC', name: 'ช่างเครื่องปรับอากาศ', description: 'บำรุงรักษาและซ่อมแอร์', icon: 'Wind', color: 'sky', staffCount: 4 },
-  { id: 'MECH', name: 'ช่างเครื่องกล', description: 'ซ่อมแซมเครื่องจักรและอุปกรณ์', icon: 'Settings', color: 'gray', staffCount: 4 },
-  { id: 'IT', name: 'ช่าง IT', description: 'ซ่อมคอมพิวเตอร์และระบบเครือข่าย', icon: 'Laptop', color: 'purple', staffCount: 3 }
+  { id: 'ELEC', name: 'แผนกไฟฟ้า', description: 'ติดตั้งและซ่อมแซมระบบไฟฟ้า', icon: 'Zap', color: 'blue', staffCount: 5 },
+  { id: 'PLUMB', name: 'แผนกประปา', description: 'ซ่อมแซมระบบประปาและสุขภัณฑ์', icon: 'Droplet', color: 'cyan', staffCount: 3 },
+  { id: 'AC', name: 'แผนกโครงสร้าง', description: 'บำรุงรักษาและซ่อมแซมโครงสร้าง', icon: 'Wrench', color: 'sky', staffCount: 4 },
+  { id: 'IT', name: 'แผนก IT', description: 'ซ่อมคอมพิวเตอร์และระบบเครือข่าย', icon: 'Laptop', color: 'purple', staffCount: 3 }
 ];
 
 // Helper: Logic สร้างรหัสงานอัตโนมัติ (J001, J002, ...)
@@ -74,8 +72,7 @@ function JobManagement({ jobs = sampleJobs, setJobs, addActivity }) {
     switch(iconName) {
       case 'Zap': return <Zap {...iconProps} />;
       case 'Droplet': return <Droplet {...iconProps} />;
-      case 'Wind': return <Wind {...iconProps} />;
-      case 'Settings': return <Settings {...iconProps} />;
+      case 'Wrench': return <Wrench {...iconProps} />;
       case 'Laptop': return <Laptop {...iconProps} />;
       default: return <span>{iconName}</span>;
     }
@@ -224,12 +221,12 @@ function JobManagement({ jobs = sampleJobs, setJobs, addActivity }) {
       setJobs(prevJobs => {
         const updatedJobs = prevJobs.map(job => {
           if (job.id === jobId) {
-            // ✅ ป้องกันการมอบหมายซ้ำถ้ามีช่างแล้ว
+            // ✅ ป้องกันการมอบหมายซ้ำถ้ามีบุคลากรแล้ว
             if (job.technician && job.technician !== 'ไม่มีช่าง' && job.technician !== 'ยังไม่มอบหมายแผนก') {
               console.log('⚠️ Job already has technician:', job.technician);
               return job; // ไม่เปลี่ยนแปลงอะไร
             }
-            // ถ้ายังไม่มีช่าง ให้มอบหมายแผนกได้
+            // ถ้ายังไม่มีบุคลากร ให้มอบหมายแผนกได้
             return { ...job, department: departmentName, technician: 'ไม่มีช่าง', status: 'รอดำเนินการ' };
           }
           return job;

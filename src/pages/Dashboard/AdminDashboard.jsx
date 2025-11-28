@@ -104,7 +104,6 @@ function AdminDashboard({ jobs = sampleJobs, handlePageChange, activityLog = [] 
                 const deptMapping = {
                     'แผนกไฟฟ้า': ['ช่างไฟฟ้า', 'แผนกไฟฟ้า'],
                     'แผนกประปา': ['ช่างประปา', 'แผนกประปา'],
-                    'แผนกโครงสร้าง': ['ช่างโครงสร้าง', 'แผนกโครงสร้าง'],
                     'แผนก IT': ['ช่าง IT', 'แผนก IT']
                 };
                 const matchNames = deptMapping[filterDepartment] || [filterDepartment];
@@ -425,7 +424,7 @@ function AdminDashboard({ jobs = sampleJobs, handlePageChange, activityLog = [] 
                                 </div>
                             </div>
 
-                            {/* รายงานจากช่าง */}
+                            {/* รายงานจากผู้รับผิดชอบ */}
                             {selectedJob.technicianReport && (
                                 <div style={{ 
                                     background: '#fef3c7', 
@@ -434,7 +433,7 @@ function AdminDashboard({ jobs = sampleJobs, handlePageChange, activityLog = [] 
                                     border: '1px solid #fde047'
                                 }}>
                                     <h4 style={{ fontSize: '16px', fontWeight: '600', color: '#92400e', marginBottom: '12px' }}>
-                                        📝 รายงานจากช่าง
+                                        📝 รายงานจากผู้รับผิดชอบ
                                     </h4>
                                     <p style={{ margin: 0, color: '#78350f', fontSize: '14px', lineHeight: '1.6' }}>
                                         {selectedJob.technicianReport}
