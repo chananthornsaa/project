@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { Search, Filter, AlertTriangle } from 'lucide-react';
 import './Dashboard.css';
 
-const MY_DEPARTMENT = 'ช่างไฟฟ้า';
+const MY_DEPARTMENT = 'แผนกไฟฟ้า';
 
 function SupervisorDashboard({ jobs = [], pendingJobsCount = 0, assignJob }) {
     // ✅ 2. เพิ่ม State สำหรับ Priority
@@ -20,26 +20,37 @@ function SupervisorDashboard({ jobs = [], pendingJobsCount = 0, assignJob }) {
     // แยกข้อมูล (Data Partitioning)
     // ==========================================
 
-    // งานรอมอบหมาย
-    const pendingAssignJobs = jobs.filter(job =>
-        job.department === MY_DEPARTMENT &&
-        (job.technician === 'ไม่มีช่าง' || job.technician === null) &&
-        job.status !== 'เสร็จสิ้น'
-    );
+    // งานรอมอบหมาย - รองรับทั้งชื่อเก่า (ช่างไฟฟ้า) และชื่อใหม่ (แผนกไฟฟ้า)
+    console.log('🔍 All jobs received:', jobs.map(j => ({ id: j.id, dept: j.department, tech: j.technician, status: j.status })));
+    
+    const pendingAssignJobs = jobs.filter(job => {
+        const deptMatch = job.department === MY_DEPARTMENT || job.department === 'ช่างไฟฟ้า'; // รองรับทั้ง 2 แบบ
+        const matches = deptMatch &&
+            (job.technician === 'ไม่มีช่าง' || job.technician === null || !job.technician) &&
+            job.status === 'รอดำเนินการ';
+        
+        console.log(`🔍 Job ${job.id}: dept=${job.department}, tech=${job.technician}, status=${job.status}, matches=${matches}`);
+        
+        return matches;
+    });
+    
+    console.log('📋 Pending assign jobs count:', pendingAssignJobs.length);
+    console.log('📋 All jobs:', jobs.length);
 
-    // งานที่มีช่างแล้ว (สำหรับตารางล่าง)
-    const assignedJobs = jobs.filter(job =>
-        job.department === MY_DEPARTMENT &&
-        job.technician &&
-        job.technician !== 'ไม่มีช่าง' &&
-        job.status !== 'เสร็จสิ้น'
-    );
+    // งานที่มีช่างแล้ว (สำหรับตารางล่าง) - รองรับทั้ง 2 แบบ
+    const assignedJobs = jobs.filter(job => {
+        const deptMatch = job.department === MY_DEPARTMENT || job.department === 'ช่างไฟฟ้า';
+        return deptMatch &&
+            job.technician &&
+            job.technician !== 'ไม่มีช่าง' &&
+            job.status !== 'เสร็จสิ้น';
+    });
 
-    // สถิติ Card
-    const deptJobs = jobs.filter(j => j.department === MY_DEPARTMENT);
+    // สถิติ Card - รองรับทั้ง 2 แบบ
+    const deptJobs = jobs.filter(j => j.department === MY_DEPARTMENT || j.department === 'ช่างไฟฟ้า');
     const totalJobs = deptJobs.length;
-    const pendingCount = deptJobs.filter(j => j.status === 'รออนุมัติ' || j.status === 'รอดำเนินการ').length;
-    const inProgressCount = deptJobs.filter(j => j.status === 'กำลังทำ').length;
+    const pendingCount = deptJobs.filter(j => j.status === 'รอดำเนินการ').length;
+    const inProgressCount = deptJobs.filter(j => j.status === 'กำลังดำเนินการ').length;
     const reviewCount = deptJobs.filter(j => j.status === 'รอตรวจสอบ').length;
     const completedCount = deptJobs.filter(j => j.status === 'เสร็จสิ้น').length;
 
@@ -67,10 +78,9 @@ function SupervisorDashboard({ jobs = [], pendingJobsCount = 0, assignJob }) {
 
     // Helper: สีสถานะ
     const getStatusClass = (status) => {
-        switch (status) {
-            case 'รออนุมัติ': return 'status-badge status-unassigned';
+        switch(status) {
             case 'รอดำเนินการ': return 'status-badge status-pending';
-            case 'กำลังทำ': return 'status-badge status-in-progress';
+            case 'กำลังดำเนินการ': return 'status-badge status-in-progress';
             case 'รอตรวจสอบ': return 'status-badge status-review';
             case 'เสร็จสิ้น': return 'status-badge status-completed';
             default: return 'status-badge';
@@ -89,11 +99,10 @@ function SupervisorDashboard({ jobs = [], pendingJobsCount = 0, assignJob }) {
     };
 
     const handleAssign = () => {
-        if (!selectedTechnician) return alert('กรุณาเลือกช่าง');
+        if (!selectedTechnician) return;
         if (assignJob) {
+            console.log(`🎯 SupervisorDashboard: Assigning ${selectedJob.id} to ${selectedTechnician}`);
             assignJob(selectedJob.id, selectedTechnician);
-        } else {
-            alert('⚠️ ระบบขัดข้อง: ไม่พบฟังก์ชันมอบหมายงาน');
         }
         setSelectedJob(null);
         setSelectedTechnician('');
@@ -103,7 +112,7 @@ function SupervisorDashboard({ jobs = [], pendingJobsCount = 0, assignJob }) {
         <>
             <div style={{ marginBottom: '20px', textAlign: 'center' }}>
                 <h2 style={{ fontSize: '28px', color: '#1e40af', fontWeight: 'bold' }}>
-                    แผนก{MY_DEPARTMENT}
+                    {MY_DEPARTMENT}
                 </h2>
             </div>
 
@@ -111,17 +120,21 @@ function SupervisorDashboard({ jobs = [], pendingJobsCount = 0, assignJob }) {
             <div className="status-cards">
                 <div className="card"><div className="card-label">งานทั้งหมด</div><div className="card-number">{totalJobs}</div></div>
                 <div className="card"><div className="card-label">รอดำเนินการ</div><div className="card-number orange">{pendingCount}</div></div>
-                <div className="card"><div className="card-label">กำลังทำ</div><div className="card-number blue">{inProgressCount}</div></div>
+                <div className="card"><div className="card-label">กำลังดำเนินการ</div><div className="card-number blue">{inProgressCount}</div></div>
                 <div className="card highlight"><div className="card-label">รอตรวจสอบ ⭐</div><div className="card-number yellow">{reviewCount}</div></div>
                 <div className="card"><div className="card-label">เสร็จสิ้น</div><div className="card-number green">{completedCount}</div></div>
             </div>
 
             {/* ตารางงานรอมอบหมาย */}
-            {pendingAssignJobs.length > 0 && (
-                <div className="page-content" style={{ margin: '40px 0' }}>
-                    <h2 style={{ fontSize: '24px', color: '#1e40af', fontWeight: 'bold', marginBottom: '20px' }}>
-                        📋 งานที่รอมอบหมาย ({pendingAssignJobs.length})
-                    </h2>
+            <div className="page-content" style={{ margin: '40px 0' }}>
+                <h2 style={{ fontSize: '24px', color: '#1e40af', fontWeight: 'bold', marginBottom: '20px' }}>
+                    📋 งานที่รอมอบหมาย ({pendingAssignJobs.length})
+                </h2>
+                {pendingAssignJobs.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '60px', background: '#f9fafb', borderRadius: '12px', color: '#9ca3af' }}>
+                        ไม่มีงานที่รอมอบหมาย
+                    </div>
+                ) : (
                     <div className="table-container">
                         <table className="job-table">
                             <thead>
@@ -130,7 +143,7 @@ function SupervisorDashboard({ jobs = [], pendingJobsCount = 0, assignJob }) {
                                     <th>ชื่องาน</th>
                                     <th>วันที่รับ</th>
                                     <th>ผู้รับงาน</th>
-                                    <th>ความสำคัญ</th> {/* ✅ 1. เพิ่มหัวข้อตรงนี้ */}
+                                    <th>ความสำคัญ</th>
                                     <th>สถานะ</th>
                                     <th>จัดการ</th>
                                 </tr>
@@ -142,14 +155,11 @@ function SupervisorDashboard({ jobs = [], pendingJobsCount = 0, assignJob }) {
                                         <td className="job-name">{job.name}</td>
                                         <td>{job.date}</td>
                                         <td>-</td>
-
-                                        {/* ✅ 2. เพิ่มข้อมูลความสำคัญตรงนี้ */}
                                         <td>
                                             <span className={getPriorityClass(job.priority)}>
                                                 {job.priority || 'ปกติ'}
                                             </span>
                                         </td>
-
                                         <td>
                                             <span className={getStatusClass(job.status)}>
                                                 {job.status}
@@ -165,8 +175,8 @@ function SupervisorDashboard({ jobs = [], pendingJobsCount = 0, assignJob }) {
                             </tbody>
                         </table>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
 
             {/* ส่วนติดตามงาน */}
             <div className="page-content" style={{ marginTop: '40px' }}>
@@ -194,7 +204,7 @@ function SupervisorDashboard({ jobs = [], pendingJobsCount = 0, assignJob }) {
                             className="filter-select"
                         >
                             <option value="ทั้งหมด">สถานะ: ทั้งหมด</option>
-                            <option value="กำลังทำ">กำลังทำ</option>
+                            <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
                             <option value="รอตรวจสอบ">รอตรวจสอบ</option>
                         </select>
                     </div>
@@ -230,7 +240,7 @@ function SupervisorDashboard({ jobs = [], pendingJobsCount = 0, assignJob }) {
                                     <th>วันที่รับ</th>
                                     <th>ผู้รับงาน</th>
                                     <th>สถานะ</th>
-                                    <th>ความสำคัญ</th> {/* เพิ่มคอลัมน์นี้ */}
+                                    <th>ความสำคัญ</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -241,12 +251,7 @@ function SupervisorDashboard({ jobs = [], pendingJobsCount = 0, assignJob }) {
                                         <td>{job.date}</td>
                                         <td>{job.technician}</td>
                                         <td><span className={getStatusClass(job.status)}>{job.status}</span></td>
-                                        <td>
-                                            {/* แสดง Badge ความสำคัญ */}
-                                            <span className={getPriorityClass(job.priority)}>
-                                                {job.priority || 'ปกติ'}
-                                            </span>
-                                        </td>
+                                        <td><span className={getPriorityClass(job.priority)}>{job.priority || 'ปกติ'}</span></td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -258,11 +263,35 @@ function SupervisorDashboard({ jobs = [], pendingJobsCount = 0, assignJob }) {
             {/* Modal */}
             {selectedJob && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }} onClick={() => setSelectedJob(null)}>
-                    <div style={{ background: 'white', padding: '32px', borderRadius: '16px', width: '90%', maxWidth: '520px' }} onClick={e => e.stopPropagation()}>
+                    <div style={{ background: 'white', padding: '32px', borderRadius: '16px', width: '90%', maxWidth: '620px', maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
                         <h3 style={{ margin: '0 0 20px', color: '#1e40af', fontSize: '24px', fontWeight: 'bold' }}>มอบหมายงาน {selectedJob.id}</h3>
-                        <div style={{ marginBottom: '24px', lineHeight: '1.8' }}>
+                        <div style={{ marginBottom: '24px', lineHeight: '1.8', background: '#f9fafb', padding: '16px', borderRadius: '12px' }}>
                             <p><strong>ชื่องาน:</strong> {selectedJob.name}</p>
                             <p><strong>แผนก:</strong> {selectedJob.department}</p>
+                            <p><strong>ความสำคัญ:</strong> <span style={{ color: selectedJob.priority === 'สูง' ? '#dc2626' : selectedJob.priority === 'ปานกลาง' ? '#f59e0b' : '#10b981' }}>{selectedJob.priority || '-'}</span></p>
+                            <p><strong>ประเภทงาน:</strong> {selectedJob.jobType || '-'}</p>
+                            <p><strong>วันที่รับงาน:</strong> {selectedJob.date || '-'}</p>
+                            <p><strong>สถานที่:</strong> {selectedJob.location || '-'}</p>
+                            {selectedJob.detail && (
+                                <div style={{ marginTop: '12px' }}>
+                                    <p style={{ fontWeight: 'bold', marginBottom: '8px' }}>รายละเอียดงาน:</p>
+                                    <p style={{ background: 'white', padding: '12px', borderRadius: '8px', whiteSpace: 'pre-wrap', border: '1px solid #e5e7eb' }}>{selectedJob.detail}</p>
+                                </div>
+                            )}
+                            {(selectedJob.customerName || selectedJob.phone || selectedJob.email) && (
+                                <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '2px solid #e5e7eb' }}>
+                                    <p style={{ fontWeight: 'bold', marginBottom: '8px', color: '#1e40af' }}>ข้อมูลผู้ติดต่อ:</p>
+                                    {selectedJob.customerName && <p><strong>ชื่อ:</strong> {selectedJob.customerName}</p>}
+                                    {selectedJob.phone && <p><strong>เบอร์โทร:</strong> {selectedJob.phone}</p>}
+                                    {selectedJob.email && <p><strong>อีเมล:</strong> {selectedJob.email}</p>}
+                                </div>
+                            )}
+                            {selectedJob.note && (
+                                <div style={{ marginTop: '12px' }}>
+                                    <p style={{ fontWeight: 'bold', marginBottom: '8px' }}>หมายเหตุ:</p>
+                                    <p style={{ background: '#fef3c7', padding: '12px', borderRadius: '8px', whiteSpace: 'pre-wrap' }}>{selectedJob.note}</p>
+                                </div>
+                            )}
                         </div>
                         <div style={{ marginBottom: '24px' }}>
                             <p style={{ fontWeight: 'bold' }}>เลือกช่าง:</p>

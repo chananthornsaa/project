@@ -20,9 +20,24 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-
 .menu-toggle-btn { padding: 8px; background: none; border: none; cursor: pointer; border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s; }
 .menu-toggle-btn:hover { background-color: #f3f4f6; }
 .logo { font-size: 20px; font-weight: bold; color: #2563eb; }
+
+/* Notification Styles */
+.notification-container { position: relative; }
 .notification-btn { padding: 8px; background: none; border: none; cursor: pointer; border-radius: 4px; position: relative; display: flex; align-items: center; transition: background-color 0.2s; }
 .notification-btn:hover { background-color: #f3f4f6; }
-.notification-dot { position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; background-color: #ef4444; border-radius: 50%; }
+.notification-badge { position: absolute; top: 4px; right: 4px; min-width: 18px; height: 18px; background-color: #ef4444; color: white; border-radius: 10px; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+.notification-dropdown { position: absolute; right: 0; top: calc(100% + 8px); width: 360px; max-width: 90vw; background-color: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); z-index: 100; max-height: 500px; display: flex; flex-direction: column; }
+.notification-header { padding: 16px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
+.notification-list { overflow-y: auto; max-height: 400px; }
+.notification-item { padding: 16px; border-bottom: 1px solid #f3f4f6; display: flex; gap: 12px; transition: background-color 0.2s; cursor: pointer; }
+.notification-item:hover { background-color: #f9fafb; }
+.notification-item:last-child { border-bottom: none; }
+.notification-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.notification-content { flex: 1; }
+.notification-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; color: #1f2937; }
+.notification-message { font-size: 13px; color: #6b7280; margin-bottom: 6px; }
+.notification-time { font-size: 12px; color: #9ca3af; display: flex; align-items: center; gap: 4px; }
+
 .profile-menu-container { position: relative; }
 .profile-btn { display: flex; align-items: center; gap: 8px; padding: 8px; background: none; border: none; cursor: pointer; border-radius: 4px; transition: background-color 0.2s; }
 .profile-btn:hover { background-color: #f3f4f6; }

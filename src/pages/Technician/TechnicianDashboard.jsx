@@ -1,5 +1,5 @@
 // src/pages/Technician/TechnicianDashboard.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     Search, Filter, Upload, X, 
     MapPin, Calendar, Clock, User, 
@@ -12,7 +12,9 @@ import '../Dashboard/Dashboard.css';
 function TechnicianDashboard({ 
     jobs = [], 
     currentTechnician = { id: 'tech1', name: 'สมชาย ใจดี' },
-    updateJobStatus 
+    updateJobStatus,
+    acceptJob,
+    setJobs
 }) {
     const [searchText, setSearchText] = useState('');
     const [filterStatus, setFilterStatus] = useState('ทั้งหมด');
@@ -23,16 +25,44 @@ function TechnicianDashboard({
     const [uploadedImages, setUploadedImages] = useState([]);
 
     // ==========================================
+    // Real-time Sync - ฟัง storage event จากแท็บอื่น
+    // ==========================================
+    useEffect(() => {
+        const handleStorageChange = (e) => {
+            if (e.key === 'jobsData' && e.newValue) {
+                console.log('🔄 TechnicianDashboard: Storage event detected - reloading jobs');
+                if (setJobs) {
+                    setJobs(JSON.parse(e.newValue));
+                }
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, [setJobs]);
+
+    // ==========================================
     // กรองเฉพาะงานของช่างคนนี้
     // ==========================================
-    const myJobs = jobs.filter(job => 
-        job.technicianId === currentTechnician.id ||
-        job.technician === currentTechnician.name
-    );
+    console.log('🔍 TechnicianDashboard - All jobs:', jobs.length);
+    console.log('🔍 Current Technician:', currentTechnician);
+    
+    const myJobs = jobs.filter(job => {
+        const match = job.technicianId === currentTechnician.id ||
+                      job.technician === currentTechnician.name;
+        if (match) {
+            console.log('✅ Found job for technician:', job.id, job.name, 'Status:', job.status);
+        }
+        return match;
+    });
+    
+    console.log('📋 My Jobs Count:', myJobs.length);
 
-    // แยกงานตามสถานะ
+    // แยกงานตามสถานะ (รองรับทั้ง 'กำลังทำ' และ 'กำลังดำเนินการ')
     const pendingJobs = myJobs.filter(job => job.status === 'รอดำเนินการ');
-    const inProgressJobs = myJobs.filter(job => job.status === 'กำลังทำ');
+    const inProgressJobs = myJobs.filter(job => 
+        job.status === 'กำลังทำ' || job.status === 'กำลังดำเนินการ'
+    );
     const reviewJobs = myJobs.filter(job => job.status === 'รอตรวจสอบ');
     const completedJobs = myJobs.filter(job => job.status === 'เสร็จสิ้น');
 
@@ -130,15 +160,40 @@ function TechnicianDashboard({
         switch (job.status) {
             case 'รอดำเนินการ':
                 return (
-                    <button 
-                        onClick={() => handleStatusChange(job.id, 'กำลังทำ')}
-                        className="approve-assign-btn"
-                        style={{ backgroundColor: '#2563eb' }}
-                    >
-                        รับงาน
-                    </button>
+                    <>
+                        <button 
+                            onClick={() => {
+                                if (acceptJob) {
+                                    acceptJob(job.id);
+                                }
+                            }}
+                            className="approve-assign-btn"
+                            style={{ backgroundColor: '#2563eb' }}
+                        >
+                            {job.rejected ? 'รับงานอีกครั้ง' : 'รับงาน'}
+                        </button>
+                        {job.rejected && job.rejectionReason && (
+                            <button
+                                onClick={() => {
+                                    alert(`เหตุผลที่ถูกตีกลับ:\n${job.rejectionReason}`);
+                                }}
+                                style={{
+                                    padding: '6px 12px',
+                                    background: '#fef3c7',
+                                    border: '1px solid #fbbf24',
+                                    borderRadius: '6px',
+                                    color: '#92400e',
+                                    fontSize: '12px',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                ดูเหตุผล
+                            </button>
+                        )}
+                    </>
                 );
             case 'กำลังทำ':
+            case 'กำลังดำเนินการ':
                 return (
                     <button 
                         onClick={() => handleStatusChange(job.id, 'รอตรวจสอบ')}
@@ -206,9 +261,23 @@ function TechnicianDashboard({
                                     </span>
                                 </td>
                                 <td>
-                                    <span className={getStatusClass(job.status)}>
-                                        {job.status}
-                                    </span>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <span className={getStatusClass(job.status)}>
+                                            {job.status}
+                                        </span>
+                                        {job.rejected && job.status === 'รอดำเนินการ' && (
+                                            <span style={{ 
+                                                fontSize: '12px', 
+                                                color: '#dc2626', 
+                                                fontWeight: '600',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '4px'
+                                            }}>
+                                                ⚠️ ถูกตีกลับ
+                                            </span>
+                                        )}
+                                    </div>
                                 </td>
                                 <td>
                                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -451,15 +520,16 @@ function TechnicianDashboard({
                                     <div style={{ 
                                         display: 'grid',
                                         gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
-                                        gap: '12px',
-                                        marginTop: '16px'
+                                        gap: '10px',
+                                        marginTop: '16px',
+                                        maxWidth: '500px'
                                     }}>
                                         {uploadedImages.map((img, idx) => (
                                             <div key={idx} style={{ 
                                                 position: 'relative',
-                                                borderRadius: '10px',
+                                                borderRadius: '8px',
                                                 overflow: 'hidden',
-                                                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                                boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
                                                 transition: 'transform 0.2s'
                                             }}
                                             onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
@@ -690,7 +760,108 @@ function TechnicianDashboard({
                                 </div>
                             </div>
 
-                            {/* รายละเอียดเพิ่มเติม */}
+                            {/* ประเภทงาน */}
+                            {selectedJob.jobType && selectedJob.jobType !== 'ไม่ระบุ' && (
+                                <div style={{ marginBottom: '20px', padding: '16px', background: '#eff6ff', borderRadius: '12px', border: '1px solid #bfdbfe' }}>
+                                    <div style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: '8px',
+                                        color: '#1e40af',
+                                        fontSize: '15px',
+                                        fontWeight: '600',
+                                        marginBottom: '8px'
+                                    }}>
+                                        <FileText size={18} />
+                                        <span>ประเภทงาน</span>
+                                    </div>
+                                    <div style={{ color: '#1e40af', fontSize: '14px' }}>
+                                        {selectedJob.jobType}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* รายละเอียดงาน */}
+                            {selectedJob.detail && (
+                                <div style={{ marginBottom: '20px' }}>
+                                    <div style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: '8px',
+                                        color: '#374151',
+                                        fontSize: '15px',
+                                        fontWeight: '600',
+                                        marginBottom: '10px'
+                                    }}>
+                                        📋 <span>รายละเอียดงาน</span>
+                                    </div>
+                                    <div style={{ 
+                                        padding: '16px',
+                                        background: '#f9fafb',
+                                        borderRadius: '8px',
+                                        color: '#4b5563',
+                                        fontSize: '14px',
+                                        lineHeight: '1.6',
+                                        whiteSpace: 'pre-wrap',
+                                        border: '1px solid #e5e7eb'
+                                    }}>
+                                        {selectedJob.detail}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* ข้อมูลผู้ติดต่อ */}
+                            {(selectedJob.customerName || selectedJob.phone || selectedJob.email) && (
+                                <div style={{ marginBottom: '20px', padding: '16px', background: '#fef3c7', borderRadius: '12px', border: '1px solid #fde68a' }}>
+                                    <div style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: '8px',
+                                        color: '#92400e',
+                                        fontSize: '15px',
+                                        fontWeight: '600',
+                                        marginBottom: '10px'
+                                    }}>
+                                        👤 <span>ข้อมูลผู้ติดต่อ</span>
+                                    </div>
+                                    <div style={{ color: '#92400e', fontSize: '14px', lineHeight: '1.8' }}>
+                                        {selectedJob.customerName && <div><strong>ชื่อ:</strong> {selectedJob.customerName}</div>}
+                                        {selectedJob.phone && <div><strong>เบอร์โทร:</strong> {selectedJob.phone}</div>}
+                                        {selectedJob.email && <div><strong>อีเมล:</strong> {selectedJob.email}</div>}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* หมายเหตุ */}
+                            {selectedJob.note && (
+                                <div style={{ marginBottom: '20px' }}>
+                                    <div style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: '8px',
+                                        color: '#374151',
+                                        fontSize: '15px',
+                                        fontWeight: '600',
+                                        marginBottom: '10px'
+                                    }}>
+                                        📝 <span>หมายเหตุ</span>
+                                    </div>
+                                    <div style={{ 
+                                        padding: '16px',
+                                        background: '#fef9e7',
+                                        borderRadius: '8px',
+                                        color: '#92400e',
+                                        fontSize: '14px',
+                                        lineHeight: '1.6',
+                                        borderLeft: '4px solid #f59e0b',
+                                        whiteSpace: 'pre-wrap'
+                                    }}>
+                                        {selectedJob.note}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* รายละเอียดเพิ่มเติม (สำหรับข้อมูลเก่า) */}
                             {selectedJob.description && (
                                 <div style={{ marginBottom: '20px' }}>
                                     <div style={{ 
@@ -703,7 +874,7 @@ function TechnicianDashboard({
                                         marginBottom: '10px'
                                     }}>
                                         <FileText size={18} />
-                                        <span>รายละเอียดงาน</span>
+                                        <span>รายละเอียดเพิ่มเติม</span>
                                     </div>
                                     <div style={{ 
                                         padding: '16px',
@@ -718,7 +889,36 @@ function TechnicianDashboard({
                                 </div>
                             )}
 
-                            {/* หมายเหตุ/ความคิดเห็น */}
+                            {/* รายงานผลการทำงาน */}
+                            {selectedJob.technicianReport && (
+                                <div style={{ marginBottom: '20px' }}>
+                                    <div style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: '8px',
+                                        color: '#065f46',
+                                        fontSize: '15px',
+                                        fontWeight: '600',
+                                        marginBottom: '10px'
+                                    }}>
+                                        ✅ <span>รายงานผลการทำงาน</span>
+                                    </div>
+                                    <div style={{ 
+                                        padding: '16px',
+                                        background: '#f0fdf4',
+                                        borderRadius: '8px',
+                                        color: '#065f46',
+                                        fontSize: '14px',
+                                        lineHeight: '1.6',
+                                        borderLeft: '4px solid #10b981',
+                                        whiteSpace: 'pre-wrap'
+                                    }}>
+                                        {selectedJob.technicianReport}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* หมายเหตุ/ความคิดเห็น (สำหรับข้อมูลเก่า) */}
                             {selectedJob.comment && (
                                 <div style={{ marginBottom: '20px' }}>
                                     <div style={{ 
@@ -747,47 +947,7 @@ function TechnicianDashboard({
                                 </div>
                             )}
 
-                            {/* รูปภาพที่อัปโหลด */}
-                            {((selectedJob.images && selectedJob.images.length > 0) || 
-                              (selectedJob.imageUrls && selectedJob.imageUrls.length > 0)) && (
-                                <div>
-                                    <div style={{ 
-                                        display: 'flex', 
-                                        alignItems: 'center', 
-                                        gap: '8px',
-                                        color: '#374151',
-                                        fontSize: '15px',
-                                        fontWeight: '600',
-                                        marginBottom: '10px'
-                                    }}>
-                                        <Image size={18} />
-                                        <span>รูปภาพประกอบ ({(selectedJob.images || selectedJob.imageUrls)?.length || 0})</span>
-                                    </div>
-                                    <div style={{ 
-                                        display: 'grid',
-                                        gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-                                        gap: '12px'
-                                    }}>
-                                        {(selectedJob.images || selectedJob.imageUrls)?.map((img, idx) => (
-                                            <div key={idx} style={{ position: 'relative' }}>
-                                                <img 
-                                                    src={img}
-                                                    alt={`รูปภาพ ${idx + 1}`}
-                                                    style={{ 
-                                                        width: '100%',
-                                                        height: '120px',
-                                                        objectFit: 'cover',
-                                                        borderRadius: '8px',
-                                                        border: '2px solid #e5e7eb',
-                                                        cursor: 'pointer'
-                                                    }}
-                                                    onClick={() => window.open(img, '_blank')}
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
+                            {/* รูปภาพที่อัปโหลด - ซ่อนไว้ */}
                         </div>
 
                         <div className="modal-footer">

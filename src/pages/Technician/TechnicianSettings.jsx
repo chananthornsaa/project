@@ -151,7 +151,7 @@ function TechnicianSettings({
                             padding: '16px 24px',
                             background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
                             borderRadius: '12px',
-                            borderLeft: '4px solid #3b82f6'
+                            borderLeft: '4px solid #2563eb'
                         }}>
                             ข้อมูลส่วนตัว
                         </h3>
@@ -162,43 +162,20 @@ function TechnicianSettings({
                             justifyContent: 'center', 
                             marginBottom: '32px' 
                         }}>
-                            <div style={{ position: 'relative' }}>
-                                <div style={{
-                                    width: '120px',
-                                    height: '120px',
-                                    borderRadius: '50%',
-                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    color: 'white',
-                                    fontSize: '48px',
-                                    fontWeight: '600',
-                                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-                                }}>
-                                    <User size={60} />
-                                </div>
-                                <button style={{
-                                    position: 'absolute',
-                                    bottom: '5px',
-                                    right: '5px',
-                                    width: '36px',
-                                    height: '36px',
-                                    borderRadius: '50%',
-                                    background: '#3b82f6',
-                                    border: '3px solid white',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    cursor: 'pointer',
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                                    transition: 'transform 0.2s'
-                                }}
-                                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                                >
-                                    <Camera size={18} color="white" />
-                                </button>
+                            <div style={{
+                                width: '120px',
+                                height: '120px',
+                                borderRadius: '50%',
+                                background: '#2563eb',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'white',
+                                fontSize: '48px',
+                                fontWeight: '600',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                            }}>
+                                <User size={60} />
                             </div>
                         </div>
 
@@ -300,8 +277,8 @@ function TechnicianSettings({
                                         boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
                                     }}
                                     onFocus={(e) => {
-                                        e.target.style.borderColor = '#3b82f6';
-                                        e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                                        e.target.style.borderColor = '#2563eb';
+                                        e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
                                     }}
                                     onBlur={(e) => {
                                         e.target.style.borderColor = '#e5e7eb';
@@ -339,8 +316,8 @@ function TechnicianSettings({
                                         boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
                                     }}
                                     onFocus={(e) => {
-                                        e.target.style.borderColor = '#3b82f6';
-                                        e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                                        e.target.style.borderColor = '#2563eb';
+                                        e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
                                     }}
                                     onBlur={(e) => {
                                         e.target.style.borderColor = '#e5e7eb';
@@ -355,7 +332,7 @@ function TechnicianSettings({
                                 style={{
                                     width: '100%',
                                     padding: '14px',
-                                    background: '#3b82f6',
+                                    background: '#2563eb',
                                     color: 'white',
                                     border: 'none',
                                     borderRadius: '10px',
@@ -363,123 +340,20 @@ function TechnicianSettings({
                                     fontWeight: '600',
                                     cursor: 'pointer',
                                     transition: 'all 0.2s',
-                                    boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+                                    boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)'
                                 }}
                                 onMouseEnter={(e) => {
-                                    e.target.style.background = '#2563eb';
+                                    e.target.style.background = '#1d4ed8';
                                     e.target.style.transform = 'translateY(-1px)';
-                                    e.target.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+                                    e.target.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.4)';
                                 }}
                                 onMouseLeave={(e) => {
-                                    e.target.style.background = '#3b82f6';
+                                    e.target.style.background = '#2563eb';
                                     e.target.style.transform = 'translateY(0)';
-                                    e.target.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
+                                    e.target.style.boxShadow = '0 2px 8px rgba(37, 99, 235, 0.3)';
                                 }}
                             >
                                 บันทึกข้อมูล
-                            </button>
-                        </div>
-                    </div>
-                );
-
-            case 'notifications':
-                return (
-                    <div>
-                        <h3 style={{ 
-                            fontSize: '22px', 
-                            fontWeight: '700', 
-                            marginBottom: '32px', 
-                            color: '#111827',
-                            padding: '16px 24px',
-                            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-                            borderRadius: '12px',
-                            borderLeft: '4px solid #3b82f6'
-                        }}>
-                            การแจ้งเตือน
-                        </h3>
-
-                        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-                            {Object.entries({
-                                newJob: 'แจ้งเตือนเมื่อมีงานใหม่',
-                                urgentJob: 'แจ้งเตือนงานเร่งด่วน',
-                                jobApproved: 'แจ้งเตือนเมื่อหัวหน้าอนุมัติงาน',
-                                jobRejected: 'แจ้งเตือนเมื่อหัวหน้าปฏิเสธงาน',
-                                dueSoon: 'แจ้งเตือนงานใกล้ครบกำหนด'
-                            }).map(([key, label]) => (
-                                <div key={key} style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    padding: '18px 20px',
-                                    marginBottom: '14px',
-                                    background: 'white',
-                                    borderRadius: '12px',
-                                    border: '2px solid #e5e7eb',
-                                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                                    transition: 'all 0.2s'
-                                }}>
-                                    <span style={{ fontSize: '15px', color: '#1f2937', fontWeight: '500' }}>{label}</span>
-                                    <label style={{ position: 'relative', display: 'inline-block', width: '50px', height: '24px', cursor: 'pointer' }}>
-                                        <input
-                                            type="checkbox"
-                                            checked={notifications[key]}
-                                            onChange={(e) => setNotifications({ ...notifications, [key]: e.target.checked })}
-                                            style={{ opacity: 0, width: 0, height: 0 }}
-                                        />
-                                        <span style={{
-                                            position: 'absolute',
-                                            top: 0,
-                                            left: 0,
-                                            right: 0,
-                                            bottom: 0,
-                                            background: notifications[key] ? '#3b82f6' : '#cbd5e1',
-                                            borderRadius: '24px',
-                                            transition: '0.3s'
-                                        }}>
-                                            <span style={{
-                                                position: 'absolute',
-                                                content: '',
-                                                height: '18px',
-                                                width: '18px',
-                                                left: notifications[key] ? '28px' : '3px',
-                                                bottom: '3px',
-                                                background: 'white',
-                                                borderRadius: '50%',
-                                                transition: '0.3s'
-                                            }} />
-                                        </span>
-                                    </label>
-                                </div>
-                            ))}
-
-                            <button
-                                onClick={handleSaveNotifications}
-                                style={{
-                                    width: '100%',
-                                    padding: '14px',
-                                    background: '#3b82f6',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '10px',
-                                    fontSize: '16px',
-                                    fontWeight: '600',
-                                    cursor: 'pointer',
-                                    marginTop: '12px',
-                                    transition: 'all 0.2s',
-                                    boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.target.style.background = '#2563eb';
-                                    e.target.style.transform = 'translateY(-1px)';
-                                    e.target.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.target.style.background = '#3b82f6';
-                                    e.target.style.transform = 'translateY(0)';
-                                    e.target.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
-                                }}
-                            >
-                                บันทึกการตั้งค่า
                             </button>
                         </div>
                     </div>
@@ -496,7 +370,7 @@ function TechnicianSettings({
                             padding: '16px 24px',
                             background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
                             borderRadius: '12px',
-                            borderLeft: '4px solid #3b82f6'
+                            borderLeft: '4px solid #2563eb'
                         }}>
                             ความปลอดภัย
                         </h3>
@@ -648,7 +522,7 @@ function TechnicianSettings({
                                 style={{
                                     width: '100%',
                                     padding: '14px',
-                                    background: '#3b82f6',
+                                    background: '#2563eb',
                                     color: 'white',
                                     border: 'none',
                                     borderRadius: '10px',
@@ -656,131 +530,20 @@ function TechnicianSettings({
                                     fontWeight: '600',
                                     cursor: 'pointer',
                                     transition: 'all 0.2s',
-                                    boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+                                    boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)'
                                 }}
                                 onMouseEnter={(e) => {
-                                    e.target.style.background = '#2563eb';
+                                    e.target.style.background = '#1d4ed8';
                                     e.target.style.transform = 'translateY(-1px)';
-                                    e.target.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+                                    e.target.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.4)';
                                 }}
                                 onMouseLeave={(e) => {
-                                    e.target.style.background = '#3b82f6';
+                                    e.target.style.background = '#2563eb';
                                     e.target.style.transform = 'translateY(0)';
-                                    e.target.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
+                                    e.target.style.boxShadow = '0 2px 8px rgba(37, 99, 235, 0.3)';
                                 }}
                             >
                                 เปลี่ยนรหัสผ่าน
-                            </button>
-                        </div>
-                    </div>
-                );
-
-            case 'about':
-                return (
-                    <div>
-                        <h3 style={{ 
-                            fontSize: '22px', 
-                            fontWeight: '700', 
-                            marginBottom: '32px', 
-                            color: '#111827',
-                            padding: '16px 24px',
-                            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-                            borderRadius: '12px',
-                            borderLeft: '4px solid #3b82f6'
-                        }}>
-                            เกี่ยวกับ
-                        </h3>
-
-                        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-                            {/* App Info */}
-                            <div style={{
-                                padding: '24px',
-                                background: '#f9fafb',
-                                borderRadius: '12px',
-                                marginBottom: '16px',
-                                textAlign: 'center'
-                            }}>
-                                <div style={{ fontSize: '48px', marginBottom: '12px' }}>⚙️</div>
-                                <h4 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>
-                                    ระบบจ่ายงานช่าง
-                                </h4>
-                                <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '4px' }}>
-                                    เวอร์ชัน 1.0.0
-                                </p>
-                                <p style={{ color: '#9ca3af', fontSize: '12px' }}>
-                                    © 2025 All rights reserved
-                                </p>
-                            </div>
-
-                            {/* Menu Items */}
-                            {[
-                                { icon: FileText, label: 'คู่มือการใช้งาน' },
-                                { icon: Info, label: 'เกี่ยวกับระบบ' },
-                                { icon: Mail, label: 'ติดต่อฝ่ายสนับสนุน' }
-                            ].map((item, index) => (
-                                <button
-                                    key={index}
-                                    style={{
-                                        width: '100%',
-                                        padding: '16px',
-                                        marginBottom: '12px',
-                                        background: 'white',
-                                        border: '2px solid #e5e7eb',
-                                        borderRadius: '12px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s'
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.borderColor = '#3b82f6';
-                                        e.currentTarget.style.background = '#eff6ff';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.borderColor = '#e5e7eb';
-                                        e.currentTarget.style.background = 'white';
-                                    }}
-                                >
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <item.icon size={20} color="#6b7280" />
-                                        <span style={{ fontSize: '14px', color: '#374151' }}>{item.label}</span>
-                                    </div>
-                                    <ChevronRight size={20} color="#9ca3af" />
-                                </button>
-                            ))}
-
-                            {/* Logout Button */}
-                            <button
-                                onClick={handleLogout}
-                                style={{
-                                    width: '100%',
-                                    padding: '16px',
-                                    marginTop: '24px',
-                                    background: '#fee2e2',
-                                    border: '2px solid #fecaca',
-                                    borderRadius: '12px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '12px',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s',
-                                    color: '#dc2626',
-                                    fontSize: '16px',
-                                    fontWeight: '600'
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.background = '#fecaca';
-                                    e.currentTarget.style.borderColor = '#fca5a5';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.background = '#fee2e2';
-                                    e.currentTarget.style.borderColor = '#fecaca';
-                                }}
-                            >
-                                <LogOut size={20} />
-                                ออกจากระบบ
                             </button>
                         </div>
                     </div>
@@ -813,9 +576,7 @@ function TechnicianSettings({
             }}>
                 {[
                     { id: 'profile', icon: User, label: 'ข้อมูลส่วนตัว' },
-                    { id: 'notifications', icon: Bell, label: 'การแจ้งเตือน' },
-                    { id: 'security', icon: Lock, label: 'ความปลอดภัย' },
-                    { id: 'about', icon: Info, label: 'เกี่ยวกับ' }
+                    { id: 'security', icon: Lock, label: 'ความปลอดภัย' }
                 ].map((tab) => (
                     <button
                         key={tab.id}
@@ -824,8 +585,8 @@ function TechnicianSettings({
                             flex: '1 0 auto',
                             padding: '14px 24px',
                             borderRadius: '12px',
-                            border: activeTab === tab.id ? '2px solid #3b82f6' : '2px solid #e5e7eb',
-                            background: activeTab === tab.id ? '#3b82f6' : 'white',
+                            border: activeTab === tab.id ? '2px solid #2563eb' : '2px solid #e5e7eb',
+                            background: activeTab === tab.id ? '#2563eb' : 'white',
                             color: activeTab === tab.id ? 'white' : '#6b7280',
                             cursor: 'pointer',
                             display: 'flex',
@@ -836,11 +597,11 @@ function TechnicianSettings({
                             fontWeight: '600',
                             transition: 'all 0.2s',
                             whiteSpace: 'nowrap',
-                            boxShadow: activeTab === tab.id ? '0 2px 8px rgba(59, 130, 246, 0.3)' : '0 1px 3px rgba(0,0,0,0.05)'
+                            boxShadow: activeTab === tab.id ? '0 2px 8px rgba(37, 99, 235, 0.3)' : '0 1px 3px rgba(0,0,0,0.05)'
                         }}
                         onMouseEnter={(e) => {
                             if (activeTab !== tab.id) {
-                                e.currentTarget.style.borderColor = '#3b82f6';
+                                e.currentTarget.style.borderColor = '#2563eb';
                                 e.currentTarget.style.background = '#eff6ff';
                                 e.currentTarget.style.transform = 'translateY(-2px)';
                                 e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';

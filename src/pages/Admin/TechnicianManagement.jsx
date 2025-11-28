@@ -38,23 +38,74 @@ const initialTechnicians = [
 // Main Component
 // ========================================
 function TechnicianManagement() {
-  const [technicians, setTechnicians] = useState(initialTechnicians);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newTech, setNewTech] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    skill: '', 
-    experience: '' // ปีของประสบการณ์
-  });
+  const [technicians, setTechnicians] = useState(initialTechnicians);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedTech, setSelectedTech] = useState(null);
+  const [newTech, setNewTech] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    skill: '', 
+    experience: '' // ปีของประสบการณ์
+  });
+  const [editTech, setEditTech] = useState({
+    name: '',
+    techId: ''
+  });
 
-  // จัดการการเปลี่ยนแปลงของฟอร์ม
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewTech(prev => ({ ...prev, [name]: value }));
-  };
+  // จัดการการเปลี่ยนแปลงของฟอร์ม
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewTech(prev => ({ ...prev, [name]: value }));
+  };
 
-  // ฟังก์ชันสร้างช่างใหม่
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditTech(prev => ({ ...prev, [name]: value }));
+  };
+
+  // ฟังก์ชันเปิด Modal แก้ไข
+  const handleOpenEditModal = (tech) => {
+    setSelectedTech(tech);
+    setEditTech({
+      name: tech.name,
+      techId: `tech${tech.id}`
+    });
+    setShowEditModal(true);
+  };
+
+  // ฟังก์ชันบันทึกการแก้ไข
+  const handleSaveEdit = () => {
+    if (!editTech.name || !editTech.techId) {
+      alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+      return;
+    }
+
+    // สร้างตัวย่อจากชื่อใหม่
+    const getInitials = (name) => {
+      try {
+        return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+      } catch {
+        return name.substring(0, 2);
+      }
+    };
+
+    setTechnicians(prev => prev.map(tech => {
+      if (tech.id === selectedTech.id) {
+        return {
+          ...tech,
+          name: editTech.name,
+          initials: getInitials(editTech.name)
+        };
+      }
+      return tech;
+    }));
+
+    setShowEditModal(false);
+    setSelectedTech(null);
+    alert(`แก้ไขข้อมูลช่าง ${editTech.name} เรียบร้อยแล้ว`);
+  };  // ฟังก์ชันสร้างช่างใหม่
   const handleAddTechnician = () => {
     if (!newTech.name || !newTech.email || !newTech.phone || !newTech.skill || !newTech.experience) {
       alert('กรุณากรอกข้อมูลให้ครบถ้วน');
@@ -139,19 +190,84 @@ function TechnicianManagement() {
               </div>
             </div>
 
-            {/* Right: Action Buttons */}
-            <div style={styles.actions}>
-              <button style={styles.editBtn}>
-                <Edit size={20} />
-                <span>จัดการ</span>
-              </button> 
-    
-            </div>
-          </div>
-        ))}
-      </div>
+            {/* Right: Action Buttons */}
+            <div style={styles.actions}>
+              <button style={styles.editBtn} onClick={() => handleOpenEditModal(tech)}>
+                <Edit size={20} />
+                <span>จัดการ</span>
+              </button> 
+    
+            </div>
+          </div>
+        ))}
+      </div>
 
-      {/* Add Modal (Full form with center display) */}
+      {/* Edit Modal - แก้ไขข้อมูลช่าง */}
+      {showEditModal && selectedTech && (
+        <div style={styles.modalOverlay} onClick={() => setShowEditModal(false)}>
+          <div style={{...styles.modal, maxWidth: '500px'}} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.modalHeader}>
+              <h3 style={styles.modalTitle}>✏️ แก้ไขข้อมูลช่าง</h3>
+              <button style={styles.modalCloseBtn} onClick={() => setShowEditModal(false)}>
+                <X size={24} color="#6b7280" />
+              </button>
+            </div>
+
+            <div style={{padding: '8px 0'}}>
+              <p style={{color: '#6b7280', fontSize: '14px', marginBottom: '16px'}}>
+                💡 ติดต่อ Admin เพื่อเปลี่ยนข้อมูลติดต่อ
+              </p>
+            </div>
+
+            <div style={styles.formGrid}>
+              {/* ชื่อ-นามสกุล */}
+              <div style={styles.formGroup}>
+                <label style={styles.label}>ชื่อ-นามสกุล:</label>
+                <input 
+                  type="text"
+                  name="name"
+                  value={editTech.name}
+                  onChange={handleEditInputChange}
+                  style={styles.input}
+                  placeholder="เช่น สมศักดิ์ ขยัน"
+                />
+              </div>
+
+              {/* รหัสช่าง */}
+              <div style={styles.formGroup}>
+                <label style={styles.label}>รหัสช่าง:</label>
+                <input 
+                  type="text"
+                  name="techId"
+                  value={editTech.techId}
+                  onChange={handleEditInputChange}
+                  style={styles.input}
+                  placeholder="เช่น tech1"
+                />
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={styles.modalActions}>
+              <button 
+                style={styles.cancelBtn}
+                onClick={() => setShowEditModal(false)}
+              >
+                ยกเลิก
+              </button>
+              <button 
+                style={styles.createBtn}
+                onClick={handleSaveEdit}
+              >
+                <Edit size={20} />
+                บันทึกการเปลี่ยน
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Modal (Full form with center display) */}
       {showAddModal && (
         <div style={styles.modalOverlay} onClick={() => setShowAddModal(false)}>
           <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
